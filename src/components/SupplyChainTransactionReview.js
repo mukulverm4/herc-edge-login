@@ -106,7 +106,7 @@ yes => _startTrans()
 if this.props.transDataFlags.confTransComplete => charge them.
 ? does this.props.transDataFlags.confTransComplete changing trigger a function?
 ? we know that it will trigger a re-render.
-? if it doesn't, then we can move "CHARGING" into a dispatch action. 
+? if it doesn't, then we can move "CHARGING" into a dispatch action.
   */
 
   async _checkBalance() {
