@@ -127,7 +127,7 @@ const MainNavigator = StackNavigator({ //this will be "createStackNavigator" aft
     DocumentQRScanner: { screen: DocumentQRScanner },
 
 }, {
-        initialRouteName: 'BlockScanner',
+        initialRouteName: 'Login',
         navigationOptions: ({ navigation }) => ({
 
             headerTitle:

@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import styles from "../assets/styles";
 import { connect } from "react-redux";
-import round from "../assets/round.png";
+import hercCoin from "../assets/icons/hercCoin.png";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const BigNumber = require("bignumber.js");
@@ -234,14 +234,14 @@ class BlockScanner extends Component {
           >
             <View style={headerStyles.header__container__centeredBox}>
               <View style={headerStyles.header__image__box}>
-                {/* <Image
+                <Image
                   style={headerStyles.assetHeaderLogo}
                   source={{ uri: params.logo }}
-                /> */}
+                />
               </View>
               <View style={headerStyles.header__text__box}>
-                {/* <Text style={headerStyles.headerText}>{params.name}</Text> */}
-                <Text>BlockScanner</Text>
+                <Text style={headerStyles.headerText}>{params.name}</Text>
+                {/* <Text>BlockScanner</Text> */}
               </View>
             </View>
           </TouchableHighlight>
@@ -292,7 +292,7 @@ class BlockScanner extends Component {
                 }}
               >
                 <Image
-                  source={round}
+                  source={hercCoin}
                   style={{ width: 40, height: 40, alignSelf: "center" }}
                 />
                 <View>
