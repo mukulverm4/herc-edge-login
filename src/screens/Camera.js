@@ -32,7 +32,7 @@ export default class Camera extends Component {
         quality: 0,
         base64: true,
         fixOrientation: true,
-        width: 200,
+        // width: 200,
         pauseAfterCapture: true
       }
       const data = await this.camera.takePictureAsync(options);
