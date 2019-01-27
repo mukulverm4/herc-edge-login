@@ -26,15 +26,18 @@ export default class Camera extends Component {
   }
 
   takePicture = async () => {
+    this.setState({ capturing: true })
     const { params } = this.props.navigation.state;
     if (this.camera) {
       const options = {
         quality: 0,
         base64: true,
-        fixOrientation: true,
-        // width: 200,
         pauseAfterCapture: true
       }
+      if (params.width){
+        options.width = params.width
+      }
+
       const data = await this.camera.takePictureAsync(options);
       let image = Object.assign({}, {
         uri: data.uri,
@@ -50,7 +53,9 @@ export default class Camera extends Component {
 
   _pressCancel(){
     this.setState({ image: null })
-    this.camera.resumePreview()
+    if (this.camera){
+      this.camera.resumePreview()
+    }
   }
 
   renderCamera() {
@@ -87,7 +92,7 @@ export default class Camera extends Component {
           style={styles.preview}/>
         <Text
           style={styles.cancel}
-          onPress={() => _pressCancel() }>Cancel</Text>
+          onPress={this._pressCancel.bind(this)}>Cancel</Text>
         <Text
           style={styles.accept}
           onPress={() => this.props.navigation.goBack()}>Accept</Text>
