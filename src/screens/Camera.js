@@ -83,8 +83,7 @@ export default class Camera extends Component {
         <Text
           style={styles.cancel}
           onPress={() =>
-            this.setState({ image: null }, () => this.camera.resumePreview()
-            )}>Cancel</Text>
+            this.setState({ image: null })}>Cancel</Text>
         <Text
           style={styles.accept}
           onPress={() => this.props.navigation.goBack()}>Accept</Text>
