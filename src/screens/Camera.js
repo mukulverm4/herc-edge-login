@@ -48,6 +48,11 @@ export default class Camera extends Component {
     };
   }
 
+  _pressCancel(){
+    this.setState({ image: null })
+    this.camera.resumePreview()
+  }
+
   renderCamera() {
     return (
       <RNCamera
@@ -82,8 +87,7 @@ export default class Camera extends Component {
           style={styles.preview}/>
         <Text
           style={styles.cancel}
-          onPress={() =>
-            this.setState({ image: null })}>Cancel</Text>
+          onPress={() => _pressCancel() }>Cancel</Text>
         <Text
           style={styles.accept}
           onPress={() => this.props.navigation.goBack()}>Accept</Text>
