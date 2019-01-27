@@ -8,7 +8,6 @@ import {
     ScrollView,
     Linking
 } from "react-native";
-import styles from "../assets/styles";
 import { VERSION } from '../components/settings.js'
 import profileIcon from "../assets/icons/profileIcon.png";
 import { connect } from "react-redux";
@@ -26,6 +25,7 @@ class NewMenu extends Component {
 
     componentDidMount() {
         console.log('****SETTINGS.jS *****', VERSION)
+        console.log(this.props.navigation);
     }
 
     onLogOut = () => {
@@ -46,10 +46,9 @@ class NewMenu extends Component {
 
     render() {
         return (
-            <View style={styles.container}>
-                <View style={localStyles.container}>
-                    <ScrollView>
-
+            <View style={localStyles.container}>
+                <ScrollView style={{ flex: 1 }}>
+                    <View style={localStyles.blockContainer}>
                         <View style={localStyles.block}>
                             <Image style={localStyles.block__icon} source={profileIcon} />
                             <View style={localStyles.block__textBlock}>
@@ -65,10 +64,10 @@ class NewMenu extends Component {
 
                         <View style={localStyles.block}>
                             <View style={localStyles.block__bullet}>
-                                <Icon name='circle' color="#d7daeb" size={16} />
+                                <Icon name='circle' color="#d7daeb" size={12} />
                             </View>
                             <View style={localStyles.block__textBlock}>
-                                <TouchableHighlight onPress={() => { }}>
+                                <TouchableHighlight onPress={() => { this.props.onItemSelected('MenuOptions'); }}>
                                     <Text style={localStyles.title__Text}>Main</Text>
                                 </TouchableHighlight>
                             </View>
@@ -76,10 +75,10 @@ class NewMenu extends Component {
 
                         <View style={localStyles.block}>
                             <View style={localStyles.block__bullet}>
-                                <Icon name='circle' color="#d7daeb" size={16} />
+                                <Icon name='circle' color="#d7daeb" size={12} />
                             </View>
                             <View style={localStyles.block__textBlock}>
-                                <TouchableHighlight onPress={() => { }}>
+                                <TouchableHighlight onPress={() => { this.props.onItemSelected('NewAssetLanding'); }}>
                                     <Text style={localStyles.title__Text}>Register Asset</Text>
                                 </TouchableHighlight>
                             </View>
@@ -87,10 +86,10 @@ class NewMenu extends Component {
 
                         <View style={localStyles.block}>
                             <View style={localStyles.block__bullet}>
-                                <Icon name='circle' color="#d7daeb" size={16} />
+                                <Icon name='circle' color="#d7daeb" size={12} />
                             </View>
                             <View style={localStyles.block__textBlock}>
-                                <TouchableHighlight onPress={() => { }}>
+                                <TouchableHighlight onPress={() => { this.props.onItemSelected('SupplyChainAssetList'); }}>
                                     <Text style={localStyles.title__Text}>Supply Chain</Text>
                                 </TouchableHighlight>
                             </View>
@@ -98,10 +97,10 @@ class NewMenu extends Component {
 
                         <View style={localStyles.block}>
                             <View style={localStyles.block__bullet}>
-                                <Icon name='circle' color="#d7daeb" size={16} />
+                                <Icon name='circle' color="#d7daeb" size={12} />
                             </View>
                             <View style={localStyles.block__textBlock}>
-                                <TouchableHighlight onPress={() => { }}>
+                                <TouchableHighlight onPress={() => { this.props.onItemSelected('TrackAssetList'); }}>
                                     <Text style={localStyles.title__Text}>Track</Text>
                                 </TouchableHighlight>
                             </View>
@@ -109,7 +108,7 @@ class NewMenu extends Component {
 
                         <View style={localStyles.block}>
                             <View style={localStyles.block__bullet}>
-                                <Icon name='circle' color="#d7daeb" size={16} />
+                                <Icon name='circle' color="#d7daeb" size={12} />
                             </View>
                             <View style={localStyles.block__textBlock}>
                                 <TouchableHighlight onPress={() => { }}>
@@ -120,10 +119,10 @@ class NewMenu extends Component {
 
                         <View style={localStyles.block}>
                             <View style={localStyles.block__bullet}>
-                                <Icon name='circle' color="#d7daeb" size={16} />
+                                <Icon name='circle' color="#d7daeb" size={12} />
                             </View>
                             <View style={localStyles.block__textBlock}>
-                                <TouchableHighlight onPress={() => { }}>
+                                <TouchableHighlight onPress={() => { this.props.onItemSelected('Wallet'); }}>
                                     <Text style={localStyles.title__Text}>Wallet</Text>
                                 </TouchableHighlight>
                             </View>
@@ -131,10 +130,10 @@ class NewMenu extends Component {
 
                         <View style={localStyles.block}>
                             <View style={localStyles.block__bullet}>
-                                <Icon name='circle' color="#d7daeb" size={16} />
+                                <Icon name='circle' color="#d7daeb" size={12} />
                             </View>
                             <View style={localStyles.block__textBlock}>
-                                <TouchableHighlight onPress={() => { }}>
+                                <TouchableHighlight onPress={() => { this.props.onItemSelected('DocumentStorage'); }}>
                                     <Text style={localStyles.title__Text}>Documents</Text>
                                 </TouchableHighlight>
                             </View>
@@ -142,7 +141,7 @@ class NewMenu extends Component {
 
                         <View style={localStyles.block}>
                             <View style={localStyles.block__bullet}>
-                                <Icon name='circle' color="#d7daeb" size={16} />
+                                <Icon name='circle' color="#d7daeb" size={12} />
                             </View>
                             <View style={localStyles.block__textBlock}>
                                 <TouchableHighlight onPress={() => { }}>
@@ -153,7 +152,7 @@ class NewMenu extends Component {
 
                         <View style={localStyles.block}>
                             <View style={localStyles.block__bullet}>
-                                <Icon name='circle' color="#d7daeb" size={16} />
+                                <Icon name='circle' color="#d7daeb" size={12} />
                             </View>
                             <View style={localStyles.block__textBlock}>
                                 <TouchableHighlight onPress={() => { Linking.openURL("mailto:social@herc.one?subject=Feedback"); }}>
@@ -164,7 +163,7 @@ class NewMenu extends Component {
 
                         <View style={localStyles.block}>
                             <View style={localStyles.block__bullet}>
-                                <Icon name='circle' color="#d7daeb" size={16} />
+                                <Icon name='circle' color="#d7daeb" size={12} />
                             </View>
                             <View style={localStyles.block__textBlock}>
                                 <TouchableHighlight onPress={() => { Linking.openURL("https://herc.one/policy"); }}>
@@ -175,7 +174,7 @@ class NewMenu extends Component {
 
                         <View style={localStyles.block}>
                             <View style={localStyles.block__bullet}>
-                                <Icon name='circle' color="#d7daeb" size={16} />
+                                <Icon name='circle' color="#d7daeb" size={12} />
                             </View>
                             <View style={localStyles.block__textBlock}>
                                 <TouchableHighlight onPress={() => { Linking.openURL("https://herc.one/terms"); }}>
@@ -186,7 +185,7 @@ class NewMenu extends Component {
 
                         <View style={localStyles.block}>
                             <View style={localStyles.block__bullet}>
-                                <Icon name='circle' color="#d7daeb" size={16} />
+                                <Icon name='circle' color="#d7daeb" size={12} />
                             </View>
                             <View style={localStyles.block__textBlock}>
                                 <TouchableHighlight onPress={() => this.onLogOut()}>
@@ -225,10 +224,10 @@ class NewMenu extends Component {
                             </View>
                         </View>
 
+                    </View>
+                </ScrollView>
+            </View>
 
-                    </ScrollView>
-                </View>
-            </View >
         );
     }
 }
@@ -237,8 +236,6 @@ const localStyles = StyleSheet.create({
     block: {
         flexDirection: "row",
         justifyContent: "center",
-        alignContent: "center",
-        alignItems: "center",
         marginVertical: 6,
     },
     footerBlock: {
@@ -258,8 +255,8 @@ const localStyles = StyleSheet.create({
     },
     block__icon: {
         flex: 1,
-        height: 32,
-        width: 32,
+        height: 48,
+        width: 48,
         resizeMode: "contain",
         paddingTop: 4,
     },
@@ -276,27 +273,27 @@ const localStyles = StyleSheet.create({
     },
     title__Text: {
         color: "#000000",
-        fontSize: 20
+        fontSize: 24
     },
     logout__Text: {
         color: "#f6666b",
-        fontSize: 20
+        fontSize: 24
     },
     subInfo__Text: {
         color: "#8e94af",
-        fontSize: 14
+        fontSize: 18
     },
     subInfo__TextUserName: {
         color: "#7384e4",
-        fontSize: 18
+        fontSize: 22
     },
     container: {
-        width: "67%",
-        height: "100%",
+        flex: 1,
         backgroundColor: "#f2f3fb",
-        justifyContent: "flex-start",
-        borderTopLeftRadius: 5,
-        borderTopRightRadius: 5
+    },
+    blockContainer: {
+        marginVertical: 10,
+        flex: 1,
     },
     socialIcon: {
         color: '#8e94af'

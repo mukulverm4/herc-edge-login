@@ -32,18 +32,18 @@ class Login extends Component {
       walletId: null,
       wallet: null
     }
-  makeEdgeContext({
-    // Replace this with your own API key from https://developer.airbitz.co:
-    apiKey: EDGE_API_KEY,
-    appId: 'one.herc',
-    // appId: 'com.mydomain.myapp',
-    vendorName: 'Chain Net',
-    vendorImageUrl: 'https://s3.us-east-2.amazonaws.com/hercmedia/hLogo.png',
-    plugins: [ethereumCurrencyPluginFactory]
-  }).then(context => {
-    this.setState({ context })
-  })
-}
+    makeEdgeContext({
+      // Replace this with your own API key from https://developer.airbitz.co:
+      apiKey: EDGE_API_KEY,
+      appId: 'one.herc',
+      // appId: 'com.mydomain.myapp',
+      vendorName: 'Chain Net',
+      vendorImageUrl: 'https://s3.us-east-2.amazonaws.com/hercmedia/hLogo.png',
+      plugins: [ethereumCurrencyPluginFactory]
+    }).then(context => {
+      this.setState({ context })
+    })
+  }
 
   onLogin = async (error = null, account) => {
     let tokenHerc = {
@@ -53,10 +53,10 @@ class Login extends Component {
       multiplier: '1000000000000000000'
     };
     let customHercTokens = {
-      tokens: [ "HERC", "HERCULES" ]
+      tokens: ["HERC", "HERCULES"]
     };
     if (!this.state.account) {
-      this.setState({account})
+      this.setState({ account })
       this.props.getAccount(account);
       this.props.getUsername(account.username);
 
@@ -66,7 +66,7 @@ class Login extends Component {
         .then(response => {
           let token = response.data
           this.props.authToken(token)
-          firebase.auth().signInWithCustomToken(token).catch( error => { console.log(error) })
+          firebase.auth().signInWithCustomToken(token).catch(error => { console.log(error) })
           axios.defaults.headers.common = {
             'Authorization': token,
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -87,9 +87,9 @@ class Login extends Component {
           const { navigate } = this.props.navigation;
 
           if (results[1].data && results[1].data == true) {
-            navigate('MenuOptions') // pass in T/F response from /latest/apk
+            navigate('SideMenuNavigator') // pass in T/F response from /latest/apk
           } else {
-            navigate('MenuOptions', {alertLatestVersion: true})
+            navigate('SideMenuNavigator', { alertLatestVersion: true })
           }
 
         })
@@ -102,21 +102,20 @@ class Login extends Component {
       // Check if there is a wallet, if not create it
       let walletInfo = account.getFirstWalletInfo('wallet:ethereum')
       if (walletInfo) {
-        this.setState({walletId: walletInfo.id})
+        this.setState({ walletId: walletInfo.id })
         account.waitForCurrencyWallet(walletInfo.id)
           .then(async wallet => {
-            wallet.watch('balances', (newBalances) =>
-            {
+            wallet.watch('balances', (newBalances) => {
               console.log('NewBalances in login.js: jm', newBalances)
               this.props.updateBalances(newBalances)
             }
-          );
+            );
             const tokens = await wallet.getEnabledTokens()
 
             this.props.getEthAddress(wallet.keys.ethereumAddress)
             this.props.getWallet(wallet)
             wallet.addCustomToken(tokenHerc)
-            wallet.enableTokens(customHercTokens).catch(err => {console.log(err, "chance enable token err")})
+            wallet.enableTokens(customHercTokens).catch(err => { console.log(err, "chance enable token err") })
             return wallet
           })
       } else {
@@ -128,8 +127,8 @@ class Login extends Component {
           this.props.getEthAddress(wallet.keys.ethereumAddress)
           this.props.getWallet(wallet)
           wallet.addCustomToken(tokenHerc)
-          wallet.enableTokens(customHercTokens).catch(err => {console.log(err, "chance enable token err")})
-          this.setState({walletId: wallet.id})
+          wallet.enableTokens(customHercTokens).catch(err => { console.log(err, "chance enable token err") })
+          this.setState({ walletId: wallet.id })
         })
       }
     }
@@ -149,10 +148,10 @@ class Login extends Component {
   };
 
   render() {
-      return (
-        <View style={styles.container}>{this.renderLoginApp()}</View>
-      );
-    }
+    return (
+      <View style={styles.container}>{this.renderLoginApp()}</View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -170,21 +169,21 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => ({
-    edge_account: state.AssetReducers.edge_account,
+  edge_account: state.AssetReducers.edge_account,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   updateBalances: (newBalances) =>
     dispatch(updateBalances(newBalances)),
-    getUsername: (edge_account) =>
-        dispatch(getUsername(edge_account)),
-    authToken: (auth_token) =>
-              dispatch(authToken(auth_token)),
-    getEthAddress: (ethereumAddress) =>
-      dispatch(getEthAddress(ethereumAddress)),
-    getWallet: (wallet) =>
-      dispatch(getWallet(wallet)),
-    getAccount: (account) =>
-      dispatch(getAccount(account)),
+  getUsername: (edge_account) =>
+    dispatch(getUsername(edge_account)),
+  authToken: (auth_token) =>
+    dispatch(authToken(auth_token)),
+  getEthAddress: (ethereumAddress) =>
+    dispatch(getEthAddress(ethereumAddress)),
+  getWallet: (wallet) =>
+    dispatch(getWallet(wallet)),
+  getAccount: (account) =>
+    dispatch(getAccount(account)),
 })
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
