@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import { createStackNavigator } from "react-navigation";
 import { connect } from "react-redux";
-import submit from "../components/buttons/submit.png"; // todo: turn into vector
+// import submit from "../components/buttons/submit.png"; // todo: turn into vector
 import styles from "../assets/styles";
 import create from "../assets/createNewAssetButton.png"; // todo: turn into vector
 import { getAssetDef, selectAsset } from "../actions/AssetActions";
@@ -310,14 +310,12 @@ const localStyles = StyleSheet.create({
     paddingBottom: 20
   },
   button: {
-    fontSize: 18,
-    height: 40,
     width: 80,
     borderColor: "black",
     borderWidth: 2,
-    margin: 5,
     padding: 5,
-    justifyContent: "center"
+    justifyContent: "center",
+    alignItems: "center",
   }
 
 

@@ -410,18 +410,7 @@ class SupplyChainTransactionReview extends Component {
         {this._hasList(transDat)}
 
         <TouchableHighlight
-          style={{
-            // margin: 10,
-            backgroundColor: 'white',
-            fontSize: 18,
-            height: 40,
-            width: 80,
-            borderColor: "black",
-            borderWidth: 2,
-            margin: 5,
-            padding: 5,
-            justifyContent: "center"
-          }}
+          style={[localStyles.button, { backgroundColor: 'white' }]}
           onPress={() => this._onPressSubmit(transPrice)}
         >
           <Text>Submit</Text>
@@ -482,6 +471,14 @@ class SupplyChainTransactionReview extends Component {
 }
 
 const localStyles = StyleSheet.create({
+  button: {
+    width: 80,
+    borderColor: "black",
+    borderWidth: 2,
+    padding: 5,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   SupplyChainTransactionReviewContainer: {
     marginTop: 10,
     flex: 1,
