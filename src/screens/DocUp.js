@@ -5,7 +5,7 @@ import styles from '../assets/styles';
 import { addDoc } from '../actions/AssetActions';
 import newOriginator from "../components/buttons/originatorButton.png"; // todo: turn into vector
 import newRecipient from "../components/buttons/recipientButton.png"; // todo: turn into vector
-import submit from "../components/buttons/submit.png"; // todo: turn into vector
+// import submit from "../components/buttons/submit.png"; // todo: turn into vector
 var RNFS = require('react-native-fs')
 
 import { DocumentPicker, DocumentPickerUtil } from 'react-native-document-picker';
@@ -147,8 +147,11 @@ class DocUp extends Component {
           </View>
           }
 
-          <TouchableHighlight onPress={() => this._onSubmit()}>
-            <Image source={submit} style={localStyles.submitButton} />
+          <TouchableHighlight
+          style={[localStyles.submitButton, { backgroundColor: 'white' }]}
+            onPress={() => this._onSubmit()}
+          >
+            <Text>Submit</Text>
           </TouchableHighlight>
         </View>
       </View>
@@ -171,11 +174,12 @@ export default connect(mapStateToProps, mapDispatchToProps)(DocUp);
 
 const localStyles = StyleSheet.create({
   submitButton: {
-    height: 40,
-    width: 200,
-    resizeMode: "contain",
-    marginTop: 80,
-    alignSelf: "center"
+    width: 80,
+    borderColor: "black",
+    borderWidth: 2,
+    padding: 5,
+    justifyContent: "center",
+    alignItems: "center",
   },
   assetLocationLabel: {
     height: 30,

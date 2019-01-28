@@ -5,7 +5,7 @@ import styles from '../assets/styles';
 import { connect } from 'react-redux';
 import newOriginator from "../components/buttons/originatorButton.png"; // todo: turn into vector
 import newRecipient from "../components/buttons/recipientButton.png"; // todo: turn into vector
-import submit from "../components/buttons/submit.png"; // todo: turn into vector
+// import submit from "../components/buttons/submit.png"; // todo: turn into vector
 import uploadImage from "../components/buttons/uploadImage.png";
 import takePhoto from "../components/buttons/takePhoto.png";
 import { addPhoto } from '../actions/AssetActions';
@@ -167,8 +167,10 @@ class ImageUpload extends Component {
             <Image style={styles.menuButton} source={takePhoto} />
           </TouchableHighlight>
 
-          <TouchableHighlight onPress={() => this._onSubmit()}>
-            <Image source={submit} style={localStyles.submitButton} />
+          <TouchableHighlight
+          style={[localStyles.submitButton, { backgroundColor: 'white' }]}
+          onPress={() => this._onSubmit()}>
+            <Text>Submit</Text>
           </TouchableHighlight>
 
         </View >
@@ -194,11 +196,12 @@ export default connect(mapStateToProps, mapDispatchToProps)(ImageUpload);
 
 const localStyles = StyleSheet.create({
   submitButton: {
-    height: 40,
-    width: 200,
-    resizeMode: "contain",
-    marginTop: 20,
-    alignSelf: "center"
+    width: 80,
+    borderColor: "black",
+    borderWidth: 2,
+    padding: 5,
+    justifyContent: "center",
+    alignItems: "center",
   },
   assetLocationLabel: {
     height: 30,
