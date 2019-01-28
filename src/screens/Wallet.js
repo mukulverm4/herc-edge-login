@@ -73,14 +73,16 @@ class Wallet extends React.Component {
       console.log("Display Wallet: ",this.props.wallet.balances[displayWallet])
       let tempBalance = new BigNumber(this.props.wallet.balances[displayWallet])
         .times(1e-18)
-        .toFixed(6);
+        .toFixed(18);
+
+        console.log(tempBalance, "***temp balance***")
       return tempBalance;
       // return "0.000000"; //don't assume it is 0
     } else {
       let displayWallet = this.state.displayWallet;
       let tempBalance = new BigNumber(this.props.watchBalance[displayWallet])
         .times(1e-18)
-        .toFixed(6);
+        .toFixed(18);
       return tempBalance;
     }
 
@@ -252,7 +254,6 @@ class Wallet extends React.Component {
                 Send
               </Text>
             </TouchableHighlight>
-
             <View
               style={{
                 marginTop: "10%",
@@ -385,7 +386,7 @@ const localStyles = StyleSheet.create({
     resizeMode: "contain"
   },
   currencyValue: {
-    fontSize: 26,
+    fontSize: 22,
     color: "black"
   },
   headerBox: {
