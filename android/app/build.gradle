@@ -168,6 +168,7 @@ configurations.all {
 
 dependencies {
     compile project(':edge-login-ui-rn')
+    compile project(':react-native-geolocation-service')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation project(':react-native-device-info')
     implementation project(':react-native-linear-gradient')

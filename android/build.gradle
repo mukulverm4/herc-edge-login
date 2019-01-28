@@ -28,3 +28,7 @@ allprojects {
         }
     }
 }
+
+ext {
+  googlePlayServicesVersion = "49.0.0"
+}
