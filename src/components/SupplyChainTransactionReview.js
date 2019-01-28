@@ -317,7 +317,7 @@ class SupplyChainTransactionReview extends Component {
           </Text>
           <View style={localStyles.feeContainer}>
             <Image style={localStyles.hercPillarIcon} source={fee} />
-            <Text style={localStyles.teePrice}>{imgPrice.toFixed(8)}</Text>
+            <Text style={localStyles.teePrice}>{imgPrice.toFixed(18)}</Text>
           </View>
         </View>
       );
@@ -338,7 +338,7 @@ class SupplyChainTransactionReview extends Component {
           </Text>
           <View style={localStyles.feeContainer}>
             <Image style={localStyles.hercPillarIcon} source={fee} />
-            <Text style={localStyles.teePrice}>{docPrice.toFixed(8)}</Text>
+            <Text style={localStyles.teePrice}>{docPrice.toFixed(18)}</Text>
           </View>
         </View>
       );
@@ -492,9 +492,6 @@ const localStyles = StyleSheet.create({
     marginTop: 10,
     alignSelf: "center"
   },
-  teePrice: {
-    color: "white"
-  },
   docContainer: {
     width: "100%",
     height: 100
@@ -582,7 +579,7 @@ const localStyles = StyleSheet.create({
     margin: 5
   },
   teePrice: {
-    fontSize: 10,
+    fontSize: 16,
     color: "white",
     backgroundColor: "#091141",
     marginRight: 5
