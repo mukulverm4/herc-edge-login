@@ -108,7 +108,7 @@ class NewAssetForm extends Component {
   _takePic = () => {
     const { navigate } = this.props.navigation;
     console.log("Camera: Taking pic......")
-    navigate('Camera', { setPic: this.setImage })
+    navigate('Camera', { setPic: this.setImage, width: 200 })
   }
 
   _pickImage = () => {
@@ -165,10 +165,13 @@ class NewAssetForm extends Component {
   _onSubmit = () => {
     const { navigate } = this.props.navigation;
     if (!this.state.Name) {
-      Alert.alert("Please Add A Name");
+      Alert.alert("","Please provide a Name for your Asset");
     }
     if(!this.state.Password) {
-      Alert.alert("Don't Forget The Password")
+      Alert.alert("","Please provide a Password for your Asset")
+    }
+    if (!this.state.Logo) {
+      Alert.alert("", "Please select a Logo for your Asset by using the Take Photo or Upload Image buttons")
     }
     if (this.state.CoreProps) {
       let CoreProps = {};
@@ -180,12 +183,13 @@ class NewAssetForm extends Component {
         CoreProps
       });
       if (this.state.Name && this.state.CoreProps) {
-
-        this.props.addAsset(newAsset);
-        navigate("NewAssetConfirm");
+        if(this.state.Password && this.state.Logo){
+          this.props.addAsset(newAsset);
+          navigate("NewAssetConfirm");
+        }
       }
     } else {
-      Alert.alert("No Properties");
+      Alert.alert("","Please provide a minimum of 1 metric for your Asset");
     }
   }
 
@@ -216,7 +220,8 @@ class NewAssetForm extends Component {
                 underlineColorAndroid='transparent'
                 style={localStyles.input}
                 onChangeText={Name => this.setState({ Name })}
-                placeholder="Asset Name"
+                placeholder="Required"
+                placeholderTextColor="crimson"
               />
             </View>
             <View style={localStyles.assetMetricInputField}>
@@ -227,7 +232,8 @@ class NewAssetForm extends Component {
                 underlineColorAndroid='transparent'
                 style={localStyles.input}
                 onChangeText={ pass => this.setState({ Password: pass })}
-                placeholder="Asset Password"
+                placeholder="Required"
+                placeholderTextColor="crimson"
               />
             </View>
             <View style={localStyles.assetMetricInputField}>
@@ -242,7 +248,8 @@ class NewAssetForm extends Component {
                     CoreProps: { ...this.state.CoreProps, metric1 }
                   })
                 }
-                placeholder="metric1"
+                placeholder="Required"
+                placeholderTextColor="crimson"
               />
             </View>
             <View style={localStyles.assetMetricInputField}>
@@ -257,7 +264,7 @@ class NewAssetForm extends Component {
                     CoreProps: { ...this.state.CoreProps, metric2 }
                   })
                 }
-                placeholder="metric2"
+                // placeholder="metric2"
               />
             </View>
             <View style={localStyles.assetMetricInputField}>
@@ -272,7 +279,7 @@ class NewAssetForm extends Component {
                     CoreProps: { ...this.state.CoreProps, metric3 }
                   })
                 }
-                placeholder="metric3"
+                // placeholder="metric3"
               />
             </View>
             <View style={localStyles.assetMetricInputField}>
@@ -287,7 +294,7 @@ class NewAssetForm extends Component {
                     CoreProps: { ...this.state.CoreProps, metric4 }
                   })
                 }
-                placeholder="metric4"
+                // placeholder="metric4"
               />
             </View>
             <View style={localStyles.assetMetricInputField}>
@@ -302,7 +309,7 @@ class NewAssetForm extends Component {
                     CoreProps: { ...this.state.CoreProps, metric5 }
                   })
                 }
-                placeholder="metric5"
+                // placeholder="metric5"
               />
             </View>
             <View style={localStyles.assetMetricInputField}>
@@ -317,7 +324,7 @@ class NewAssetForm extends Component {
                     CoreProps: { ...this.state.CoreProps, metric6 }
                   })
                 }
-                placeholder="metric6"
+                // placeholder="metric6"
               />
             </View>
             <View style={localStyles.assetMetricInputField}>
@@ -332,7 +339,7 @@ class NewAssetForm extends Component {
                     CoreProps: { ...this.state.CoreProps, metric7 }
                   })
                 }
-                placeholder="metric7"
+                // placeholder="metric7"
               />
             </View>
             <View style={localStyles.assetMetricInputField}>
@@ -347,7 +354,7 @@ class NewAssetForm extends Component {
                     CoreProps: { ...this.state.CoreProps, metric8 }
                   })
                 }
-                placeholder="metric8"
+                // placeholder="metric8"
               />
             </View>
 

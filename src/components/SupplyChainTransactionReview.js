@@ -16,7 +16,6 @@ import {
 import { connect } from "react-redux";
 import { StackNavigator } from "react-navigation";
 import styles from "../assets/styles";
-import submit from "./buttons/submit.png"; // todo: turn into vector
 import { sendTrans } from "../actions/AssetActions";
 import fee from "../assets/hercLogoPillar.png";
 import newOriginator from "./buttons/originatorButton.png";// todo: turn into vector
@@ -326,7 +325,7 @@ if this.props.transDataFlags.confTransComplete => charge them.
           </Text>
           <View style={localStyles.feeContainer}>
             <Image style={localStyles.hercPillarIcon} source={fee} />
-            <Text style={localStyles.teePrice}>{imgPrice.toFixed(8)}</Text>
+            <Text style={localStyles.teePrice}>{imgPrice.toFixed(18)}</Text>
           </View>
         </View>
       );
@@ -347,7 +346,7 @@ if this.props.transDataFlags.confTransComplete => charge them.
           </Text>
           <View style={localStyles.feeContainer}>
             <Image style={localStyles.hercPillarIcon} source={fee} />
-            <Text style={localStyles.teePrice}>{docPrice.toFixed(8)}</Text>
+            <Text style={localStyles.teePrice}>{docPrice.toFixed(18)}</Text>
           </View>
         </View>
       );
@@ -419,10 +418,10 @@ if this.props.transDataFlags.confTransComplete => charge them.
         {this._hasList(transDat)}
 
         <TouchableHighlight
-          style={{ margin: 10 }}
+          style={[localStyles.button, { backgroundColor: 'white' }]}
           onPress={() => this._onPressSubmit(transPrice)}
         >
-          <Image source={submit} style={localStyles.submitButton} />
+          <Text>Submit</Text>
         </TouchableHighlight>
 
         <Modal
@@ -480,17 +479,19 @@ if this.props.transDataFlags.confTransComplete => charge them.
 }
 
 const localStyles = StyleSheet.create({
+  button: {
+    width: 80,
+    borderColor: "black",
+    borderWidth: 2,
+    padding: 5,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   SupplyChainTransactionReviewContainer: {
     marginTop: 10,
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-start"
-  },
-  submitButton: {
-    height: 40,
-    width: 200,
-    resizeMode: "contain",
-    alignSelf: "center"
   },
   assetLocationLabel: {
     height: 30,
@@ -498,9 +499,6 @@ const localStyles = StyleSheet.create({
     resizeMode: "contain",
     marginTop: 10,
     alignSelf: "center"
-  },
-  teePrice: {
-    color: "white"
   },
   docContainer: {
     width: "100%",
@@ -589,7 +587,7 @@ const localStyles = StyleSheet.create({
     margin: 5
   },
   teePrice: {
-    fontSize: 10,
+    fontSize: 16,
     color: "white",
     backgroundColor: "#091141",
     marginRight: 5
