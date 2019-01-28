@@ -246,14 +246,14 @@ const localStyles = StyleSheet.create({
   menuItemField: {
     display: "flex",
     flexDirection: "row",
-    width: 200,
-    height: 40,
+    width: 250,
+    height: 50,
     backgroundColor: 'white',
     borderRadius: 3,
     alignItems: "center",
     alignContent: "center",
     justifyContent: "center",
-    margin: 15,
+    margin: 12,
     paddingLeft: 3,
   },
   assetLogo: {

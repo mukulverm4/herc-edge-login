@@ -15,7 +15,7 @@ modalBackground: {
     flexDirection: 'column',
     justifyContent: 'center',
     height: '50%',
-    width: '90%',
+    width: '100%',
     backgroundColor: '#00000040'
 
 },

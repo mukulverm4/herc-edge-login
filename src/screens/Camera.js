@@ -1,7 +1,9 @@
+'use strict';
 import React, { Component } from 'react';
-import { AppRegistry, Dimensions, StyleSheet, Text, TouchableOpacity, TouchableHighlight, View, Image, ActivityIndicator } from 'react-native';
+import { AppRegistry, Dimensions, StyleSheet, Text, TouchableOpacity, TouchableHighlight, View, Image, ActivityIndicator, Modal } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { relative } from 'path';
+import modalStyle from "../assets/confModalStyles";
 
 export default class Camera extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -14,46 +16,46 @@ export default class Camera extends Component {
     super(props);
     const initial = null;
     this.state = {
-      image: null,
-      // loading: false,
+      capturing: false
     };
   }
-  _getSize = (data) => {
-    console.log('Camera: getting size');
-    let string = data;
-    let size = atob(string);
-    console.log("Camera: size =" + size.length);
-    return (size.length);
 
+  _getSize = (data) => {
+    let size = atob(data);
+    return (size.length);
   }
 
   takePicture = async () => {
-    console.log("taking");
+    this.setState({ capturing: true })
     const { params } = this.props.navigation.state;
     if (this.camera) {
-      //picture orientation bug fix zube card #406
       const options = {
         quality: 0,
-        skipProcessing: true,
         base64: true,
-        fixOrientation: true
+        pauseAfterCapture: true
       }
-      try {
-        const data = await this.camera.takePictureAsync(options);
-        // this._getSize(data.base64);
-        let image = Object.assign({}, {
-          uri: data.uri,
-          size: this._getSize(data.base64),
-          string: "data:image/jpg;base64," + data.base64
-        })
-        this.setState({ image })
+      if (params.width){
+        options.width = params.width
+      }
 
-        params.setPic(this.state.image);
-        console.log("Camera: afterBase", data.uri, "Camera: size: ", this._getSize(data.base64));
-      } catch (err) {
-        console.log('Camera Error: ', err)
-      }
+      const data = await this.camera.takePictureAsync(options);
+      let image = Object.assign({}, {
+        uri: data.uri,
+        size: this._getSize(data.base64),
+        string: "data:image/jpg;base64," + data.base64
+      })
+      this.setState({ image }, () => {
+        params.setPic(this.state.image)
+      })
+      this.setState({ capturing: false })
     };
+  }
+
+  _pressCancel(){
+    this.setState({ image: null })
+    if (this.camera){
+      this.camera.resumePreview()
+    }
   }
 
   renderCamera() {
@@ -63,14 +65,20 @@ export default class Camera extends Component {
           this.camera = cam;
         }}
         style={styles.preview}
+        type={RNCamera.Constants.Type.back}
         flashMode={RNCamera.Constants.FlashMode.off}
         permissionDialogTitle={'Permission to use camera'}
-        permissionDialogMessage={'We need your permission to use your camera phone'}>
+        permissionDialogMessage={'We need your permission to use your camera phone'}
+        onGoogleVisionBarcodesDetected={({ barcodes }) => {
+            console.log(barcodes);
+          }}
+        >
         <TouchableHighlight
           style={styles.capture}
           onPress={this.takePicture.bind(this)}
-          underlayColor="rgba(255, 255, 255, 0.5)">
-          <View />
+          underlayColor="rgba(255, 255, 255, 0.5)"
+          >
+          <View/>
         </TouchableHighlight>
       </RNCamera>
     );
@@ -84,7 +92,7 @@ export default class Camera extends Component {
           style={styles.preview}/>
         <Text
           style={styles.cancel}
-          onPress={() => this.setState({ image: null })}>Cancel</Text>
+          onPress={this._pressCancel.bind(this)}>Cancel</Text>
         <Text
           style={styles.accept}
           onPress={() => this.props.navigation.goBack()}>Accept</Text>
@@ -93,9 +101,24 @@ export default class Camera extends Component {
   }
 
   render() {
-    console.log(Object.keys(this.state), "thisStatein Render")
     return (
       <View style={styles.container}>
+        <Modal
+            transparent={false}
+            animationType={'none'}
+            visible={this.state.capturing}
+            onRequestClose={() => { console.log("modal closed") }}
+        >
+            <View style={modalStyle.container}>
+                <View style={modalStyle.modalBackground}>
+                    <View style={modalStyle.activityIndicatorWrapper}>
+                    <Text>Snapping Photo</Text>
+                        <ActivityIndicator
+                            animating={this.state.capturing} size="large" color="#091141" />
+                    </View>
+                </View>
+            </View>
+        </Modal>
         {this.state.image ? this.renderImage() : this.renderCamera()}
       </View>
     );
@@ -103,6 +126,13 @@ export default class Camera extends Component {
 }
 
 const styles = StyleSheet.create({
+  activityIndicatorContainer: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+  },
   container: {
     flex: 1,
     alignItems: 'center',
