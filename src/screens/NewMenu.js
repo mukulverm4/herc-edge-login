@@ -262,7 +262,8 @@ const localStyles = StyleSheet.create({
     },
     block__bullet: {
         flex: 1,
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent:'center'
     },
     block__textBlock: {
         flex: 3,
@@ -273,11 +274,11 @@ const localStyles = StyleSheet.create({
     },
     title__Text: {
         color: "#000000",
-        fontSize: 24
+        fontSize: 22
     },
     logout__Text: {
         color: "#f6666b",
-        fontSize: 24
+        fontSize: 22
     },
     subInfo__Text: {
         color: "#8e94af",
