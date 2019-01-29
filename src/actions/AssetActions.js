@@ -223,7 +223,7 @@ export function confirmAssetStarted(assetForIPFS) {
             return chainId
           })
           .then(chainId => {
-            let dataObject = Object.assign({}, { chainId: chainId, ipfsHash: ipfsHash })
+            let dataObject = Object.assign({}, { chainId: chainId, ipfsHash: ipfsHash, organizationName: 'H3RCUL3S' }) // organizationName hard-coded for 0.9.5 in preparation for igvc.eth platform
             // if (asset.Logo) {
             //     dataObject = Object.assign(dataObject, { Logo: asset.Logo })
             // }

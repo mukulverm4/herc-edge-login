@@ -16,13 +16,12 @@ import {
 import { connect } from "react-redux";
 import { StackNavigator } from "react-navigation";
 import styles from "../assets/styles";
-import submit from "./buttons/submit.png"; // todo: turn into vector
 import { sendTrans } from "../actions/AssetActions";
 import fee from "../assets/hercLogoPillar.png";
 import newOriginator from "./buttons/originatorButton.png";// todo: turn into vector
 import newRecipient from "./buttons/recipientButton.png"; // todo: turn into vector
 import modalStyle from "../assets/confModalStyles";
-import { TOKEN_ADDRESS } from "../components/settings";
+import { TOKEN_ADDRESS, DEVELOPERS } from "../components/settings";
 import BigNumber from "bignumber.js";
 import store from "../store";
 
@@ -105,98 +104,106 @@ class SupplyChainTransactionReview extends Component {
     if (!this.state.balance) {
       return;
     }
-    // let docPrice = parseFloat(this._getDocPrice());
-    // let imgPrice = parseFloat(this._getImgPrice());
-    // let networkFee = parseFloat(this._getNetworkFee());
-    // let docImgFee = docPrice + imgPrice
-    // let total = docPrice + imgPrice + networkFee;
-    // let convertingTotal= new BigNumber(total); // don't have to times 1e18 because its already hercs
-    let balance = new BigNumber(this.state.balance);
-
-    // let docImgFeePrepped = (docImgFee * Math.pow(10,18)).toFixed(0);
-    // let networkFeePrepped = (networkFee * Math.pow(10,18)).toFixed(0);
-    let docImgFeePrepped = new BigNumber(this._getDocPrice()).plus(this._getImgPrice()).multipliedBy(1000000000000000000).toFixed(0);
-    let networkFeePrepped = new BigNumber(this._getNetworkFee()).multipliedBy(1000000000000000000).toFixed(0);
-    let totalBN = new BigNumber(this._getDocPrice()).plus(this._getImgPrice()).plus(this._getNetworkFee());
-    let newbalance = balance.minus(totalBN);
-
-    console.log("chance, do you have enough?", newbalance.isPositive());
-
-    if (newbalance.isNegative()) {
-      Alert.alert(
-        "Insufficient Funds",
-        "Balance: " + this.state.balance + " HERC",
-        [
-          {
-            text: "Top Up Hercs",
-            onPress: () => Linking.openURL("https://purchase.herc.one/"),
-            style: "cancel"
-          },
-          { text: "Ok", onPress: () => console.log("OK Pressed") }
-        ],
-        { cancelable: true }
-      );
+    if (DEVELOPERS.includes(this.props.edgeAccount)){
+      // this is a developer
+      console.log("You are a developer. jm")
+      this._sendTrans()
     } else {
-      this.setState({ modalVisible: true });
-      const burnSpendInfo = {
-        networkFeeOption: "standard",
-        currencyCode: "HERC",
-        metadata: {
-          name: "Transfer From Herc Wallet",
-          category: "Transfer:Wallet:Network Fee"
-        },
-        spendTargets: [
-          {
-            publicAddress: TOKEN_ADDRESS,
-            nativeAmount: networkFeePrepped.toString()
-          }
-        ]
-      };
-      const dataFeeSpendInfo = {
-        networkFeeOption: "standard",
-        currencyCode: "HERC",
-        metadata: {
-          name: "Transfer From Herc Wallet",
-          category: "Transfer:Wallet:Data Fee"
-        },
-        spendTargets: [
-          {
-            publicAddress: "0x1a2a618f83e89efbd9c9c120ab38c1c2ec9c4e76",
-            nativeAmount: docImgFeePrepped.toString()
-          }
-        ]
-      };
-      // catch error for "ErrorInsufficientFunds"
-      // catch error for "ErrorInsufficientFundsMoreEth"
-      let wallet = this.props.wallet;
-      try {
-        let burnTransaction = await wallet.makeSpend(burnSpendInfo);
-        await wallet.signTx(burnTransaction);
-        await wallet.broadcastTx(burnTransaction);
-        await wallet.saveTx(burnTransaction);
-        console.log("Sent burn transaction with ID = " + burnTransaction.txid);
+      // this is a non-developer
+      console.log("You are NOT a developer. jm")
+      // let docPrice = parseFloat(this._getDocPrice());
+      // let imgPrice = parseFloat(this._getImgPrice());
+      // let networkFee = parseFloat(this._getNetworkFee());
+      // let docImgFee = docPrice + imgPrice
+      // let total = docPrice + imgPrice + networkFee;
+      // let convertingTotal= new BigNumber(total); // don't have to times 1e18 because its already hercs
+      let balance = new BigNumber(this.state.balance);
 
-        let dataFeeTransaction = await wallet.makeSpend(dataFeeSpendInfo);
-        await wallet.signTx(dataFeeTransaction);
-        await wallet.broadcastTx(dataFeeTransaction);
-        await wallet.saveTx(dataFeeTransaction);
-        console.log(
-          "Sent dataFee transaction with ID = " + dataFeeTransaction.txid
-        );
+      // let docImgFeePrepped = (docImgFee * Math.pow(10,18)).toFixed(0);
+      // let networkFeePrepped = (networkFee * Math.pow(10,18)).toFixed(0);
+      let docImgFeePrepped = new BigNumber(this._getDocPrice()).plus(this._getImgPrice()).multipliedBy(1000000000000000000).toFixed(0);
+      let networkFeePrepped = new BigNumber(this._getNetworkFee()).multipliedBy(1000000000000000000).toFixed(0);
+      let totalBN = new BigNumber(this._getDocPrice()).plus(this._getImgPrice()).plus(this._getNetworkFee());
+      let newbalance = balance.minus(totalBN);
 
-        if (burnTransaction.txid && dataFeeTransaction.txid) {
-          this._sendTrans();
-        }
-      } catch (e) {
-        let tempBalance = new BigNumber(this.props.watchBalance["ETH"]);
-        let ethBalance = tempBalance.times(1e-18).toFixed(6);
-        this.setState({ modalVisible: false });
+      console.log("chance, do you have enough?", newbalance.isPositive());
+
+      if (newbalance.isNegative()) {
         Alert.alert(
-          "Insufficient ETH Funds",
-          "Balance: " + ethBalance + " ETH",
-          [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
-          { cancelable: false }
+          "Insufficient Funds",
+          "Balance: " + this.state.balance + " HERC",
+          [
+            {
+              text: "Top Up Hercs",
+              onPress: () => Linking.openURL("https://purchase.herc.one/"),
+              style: "cancel"
+            },
+            { text: "Ok", onPress: () => console.log("OK Pressed") }
+          ],
+          { cancelable: true }
         );
+      } else {
+        this.setState({ modalVisible: true });
+        const burnSpendInfo = {
+          networkFeeOption: "standard",
+          currencyCode: "HERC",
+          metadata: {
+            name: "Transfer From Herc Wallet",
+            category: "Transfer:Wallet:Network Fee"
+          },
+          spendTargets: [
+            {
+              publicAddress: TOKEN_ADDRESS,
+              nativeAmount: networkFeePrepped.toString()
+            }
+          ]
+        };
+        const dataFeeSpendInfo = {
+          networkFeeOption: "standard",
+          currencyCode: "HERC",
+          metadata: {
+            name: "Transfer From Herc Wallet",
+            category: "Transfer:Wallet:Data Fee"
+          },
+          spendTargets: [
+            {
+              publicAddress: "0x1a2a618f83e89efbd9c9c120ab38c1c2ec9c4e76",
+              nativeAmount: docImgFeePrepped.toString()
+            }
+          ]
+        };
+        // catch error for "ErrorInsufficientFunds"
+        // catch error for "ErrorInsufficientFundsMoreEth"
+        let wallet = this.props.wallet;
+        try {
+          let burnTransaction = await wallet.makeSpend(burnSpendInfo);
+          await wallet.signTx(burnTransaction);
+          await wallet.broadcastTx(burnTransaction);
+          await wallet.saveTx(burnTransaction);
+          console.log("Sent burn transaction with ID = " + burnTransaction.txid);
+
+          let dataFeeTransaction = await wallet.makeSpend(dataFeeSpendInfo);
+          await wallet.signTx(dataFeeTransaction);
+          await wallet.broadcastTx(dataFeeTransaction);
+          await wallet.saveTx(dataFeeTransaction);
+          console.log(
+            "Sent dataFee transaction with ID = " + dataFeeTransaction.txid
+          );
+
+          if (burnTransaction.txid && dataFeeTransaction.txid) {
+            this._sendTrans();
+          }
+        } catch (e) {
+          let tempBalance = new BigNumber(this.props.watchBalance["ETH"]);
+          let ethBalance = tempBalance.times(1e-18).toFixed(6);
+          this.setState({ modalVisible: false });
+          Alert.alert(
+            "Insufficient ETH Funds",
+            "Balance: " + ethBalance + " ETH",
+            [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
+            { cancelable: false }
+          );
+        }
       }
     }
   }
@@ -310,7 +317,7 @@ class SupplyChainTransactionReview extends Component {
           </Text>
           <View style={localStyles.feeContainer}>
             <Image style={localStyles.hercPillarIcon} source={fee} />
-            <Text style={localStyles.teePrice}>{imgPrice.toFixed(8)}</Text>
+            <Text style={localStyles.teePrice}>{imgPrice.toFixed(18)}</Text>
           </View>
         </View>
       );
@@ -331,7 +338,7 @@ class SupplyChainTransactionReview extends Component {
           </Text>
           <View style={localStyles.feeContainer}>
             <Image style={localStyles.hercPillarIcon} source={fee} />
-            <Text style={localStyles.teePrice}>{docPrice.toFixed(8)}</Text>
+            <Text style={localStyles.teePrice}>{docPrice.toFixed(18)}</Text>
           </View>
         </View>
       );
@@ -403,10 +410,10 @@ class SupplyChainTransactionReview extends Component {
         {this._hasList(transDat)}
 
         <TouchableHighlight
-          style={{ margin: 10 }}
+          style={[localStyles.button, { backgroundColor: 'white' }]}
           onPress={() => this._onPressSubmit(transPrice)}
         >
-          <Image source={submit} style={localStyles.submitButton} />
+          <Text>Submit</Text>
         </TouchableHighlight>
 
         <Modal
@@ -464,17 +471,19 @@ class SupplyChainTransactionReview extends Component {
 }
 
 const localStyles = StyleSheet.create({
+  button: {
+    width: 80,
+    borderColor: "black",
+    borderWidth: 2,
+    padding: 5,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   SupplyChainTransactionReviewContainer: {
     marginTop: 10,
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-start"
-  },
-  submitButton: {
-    height: 40,
-    width: 200,
-    resizeMode: "contain",
-    alignSelf: "center"
   },
   assetLocationLabel: {
     height: 30,
@@ -482,9 +491,6 @@ const localStyles = StyleSheet.create({
     resizeMode: "contain",
     marginTop: 10,
     alignSelf: "center"
-  },
-  teePrice: {
-    color: "white"
   },
   docContainer: {
     width: "100%",
@@ -573,7 +579,7 @@ const localStyles = StyleSheet.create({
     margin: 5
   },
   teePrice: {
-    fontSize: 10,
+    fontSize: 16,
     color: "white",
     backgroundColor: "#091141",
     marginRight: 5

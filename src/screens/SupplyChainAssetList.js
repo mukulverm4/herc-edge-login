@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import { createStackNavigator } from "react-navigation";
 import { connect } from "react-redux";
-import submit from "../components/buttons/submit.png"; // todo: turn into vector
+// import submit from "../components/buttons/submit.png"; // todo: turn into vector
 import styles from "../assets/styles";
 import create from "../assets/createNewAssetButton.png"; // todo: turn into vector
 import { getAssetDef, selectAsset } from "../actions/AssetActions";
@@ -196,20 +196,17 @@ class SupplyChainAssetList extends Component {
                   />
                 </View>
                 <View style={localStyles.buttonField}>
-                  <TouchableHighlight onPress={() => this._onPasswordSubmit()}>
-                    <Image
-                      style={[
-                        localStyles.button,
-                        { resizeMode: "cover", alignSelf: "flex-start" }
-                      ]}
-                      source={submit}
-                    />
+                  <TouchableHighlight
+                  style={[localStyles.button, { backgroundColor: 'white' }]}
+                  onPress={() => this._onPasswordSubmit()}
+                  >
+                    <Text>Submit</Text>
                   </TouchableHighlight>
                   <TouchableHighlight
                     style={localStyles.button}
                     onPress={this._cancelPass}
                   >
-                    <Text style={{ fontSize: 18 }}>Cancel</Text>
+                    <Text>Cancel</Text>
                   </TouchableHighlight>
                 </View>
               </View>
@@ -247,14 +244,14 @@ const localStyles = StyleSheet.create({
   menuItemField: {
     display: "flex",
     flexDirection: "row",
-    width: 200,
-    height: 40,
+    width: 250,
+    height: 50,
     backgroundColor: 'white',
     borderRadius: 3,
     alignItems: "center",
     alignContent: "center",
     justifyContent: "center",
-    margin: 15,
+    margin: 12,
     paddingLeft: 3,
   },
   assetLogo: {
@@ -313,13 +310,12 @@ const localStyles = StyleSheet.create({
     paddingBottom: 20
   },
   button: {
-    height: 40,
     width: 80,
     borderColor: "black",
     borderWidth: 2,
-    margin: 5,
     padding: 5,
-    justifyContent: "center"
+    justifyContent: "center",
+    alignItems: "center",
   }
 
 

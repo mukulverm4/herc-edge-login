@@ -108,7 +108,7 @@ class NewAssetForm extends Component {
   _takePic = () => {
     const { navigate } = this.props.navigation;
     console.log("Camera: Taking pic......")
-    navigate('Camera', { setPic: this.setImage })
+    navigate('Camera', { setPic: this.setImage, width: 200 })
   }
 
   _pickImage = () => {
@@ -221,7 +221,7 @@ class NewAssetForm extends Component {
                 style={localStyles.input}
                 onChangeText={Name => this.setState({ Name })}
                 placeholder="Required"
-                placeholderTextColor="crimson" 
+                placeholderTextColor="crimson"
               />
             </View>
             <View style={localStyles.assetMetricInputField}>
@@ -233,7 +233,7 @@ class NewAssetForm extends Component {
                 style={localStyles.input}
                 onChangeText={ pass => this.setState({ Password: pass })}
                 placeholder="Required"
-                placeholderTextColor="crimson"  
+                placeholderTextColor="crimson"
               />
             </View>
             <View style={localStyles.assetMetricInputField}>
@@ -249,7 +249,7 @@ class NewAssetForm extends Component {
                   })
                 }
                 placeholder="Required"
-                placeholderTextColor="crimson"  
+                placeholderTextColor="crimson"
               />
             </View>
             <View style={localStyles.assetMetricInputField}>

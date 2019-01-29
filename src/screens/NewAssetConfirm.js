@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Modal, Platform, StyleSheet, Text, View, Image, ScrollView, TextInput, TouchableHighlight, Alert, Button, ActivityIndicator, Linking } from 'react-native';
-import submit from "../components/buttons/submit.png"; // todo: turn into vector
+// import submit from "../components/buttons/submit.png"; // todo: turn into vector
 import logo from "../assets/round.png";
 import { connect } from "react-redux";
 import styles from "../assets/styles";
@@ -251,8 +251,10 @@ class NewAssetConfirm extends Component {
 
                     </ScrollView>
 
-                    <TouchableHighlight onPress={() => this._onPressSubmit()}>
-                        <Image source={submit} style={localStyles.imageButtons} />
+                    <TouchableHighlight
+                    style={[localStyles.button, { backgroundColor: 'white' }]}
+                    onPress={this._onPressSubmit}>
+                      <Text>Submit</Text>
                     </TouchableHighlight>
 
                     <View style={localStyles.newAssetFeeContainer}>
@@ -428,6 +430,14 @@ const localStyles = StyleSheet.create({
         fontWeight: "600",
         color: "yellow"
     },
+    button: {
+      width: 80,
+      borderColor: "black",
+      borderWidth: 2,
+      padding: 5,
+      justifyContent: "center",
+      alignItems: "center",
+    }
 
 
 })

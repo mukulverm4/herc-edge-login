@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Platform, StyleSheet, Text, View, Image, ScrollView, TextInput, TouchableHighlight, Alert } from 'react-native';
-import submit from "../components/buttons/submit.png"; // todo: turn into vector
 import originator from "../components/buttons/originatorButton.png";// todo: turn into vector
 import recipient from "../components/buttons/recipientButton.png"; // todo: turn into vector
 import { StackNavigator } from 'react-navigation';
@@ -131,8 +130,18 @@ class Confirm extends Component {
           <Image style={localStyles.assetLocationLabel} source={locationImage} />
           <ScrollView style={{ alignSelf: "center", width: "100%", paddingRight: 10 }}>
             {list}
-            <TouchableHighlight style={{alignSelf: "center"}} onPress={() => navigate('SupplyChainReview', { logo: this.props.logo, name: this.props.name })}>
-              <Image style={styles.menuButton} source={submit} />
+            <TouchableHighlight style={{
+              backgroundColor: 'white',
+              fontSize: 18,
+              height: 40,
+              width: 80,
+              borderColor: "black",
+              borderWidth: 2,
+              margin: 5,
+              padding: 5,
+              justifyContent: "center"
+            }} onPress={() => navigate('SupplyChainReview', { logo: this.props.logo, name: this.props.name })}>
+              <Text>Submit</Text>
             </TouchableHighlight>
             {/* <View style={styles.assetFee}>
             <Image style={styles.assetFeeLabel} source={fee} />
