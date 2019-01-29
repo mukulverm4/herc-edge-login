@@ -9,7 +9,8 @@ import {
     StatusBar,
     Alert,
     Linking,
-    YellowBox
+    YellowBox,
+    PermissionsAndroid
 } from "react-native";
 import { StackNavigator } from "react-navigation";
 import hiprBtn from "../components/buttons/validate.png";
@@ -30,6 +31,7 @@ import store from "../store";
 import Wallet from "./Wallet";
 import firebase from '../constants/Firebase';
 const rootRef = firebase.database().ref();
+import Geolocation from 'react-native-geolocation-service';
 
 
 class MenuOptions extends Component {
@@ -39,7 +41,10 @@ class MenuOptions extends Component {
 
 
     componentDidMount() {
+      this._requestFineLocationPermission();
         // this.props.clearState();
+        console.log("jm Geolocation:", Geolocation)
+
         this.props.getHercId();
         this.props.getAssets(this.props.username);
         this.props.getOrganization();
@@ -61,6 +66,35 @@ class MenuOptions extends Component {
         }
     }
 
+
+    _requestFineLocationPermission = async () => {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: "Herc Enable Location",
+            message:
+              "Herc needs access to your location " +
+              "to provide attestation of your supply chain data."
+          }
+        );
+        if (granted){
+          Geolocation.getCurrentPosition(
+            (position) => {
+              console.log("jm Geolocation Position:", position);
+            },
+            (error) => {
+              console.log("jm Geolocation Error: ", error.code, error.message);
+            }
+          );
+        }
+        return granted;
+      } catch (err) {
+        console.error("Failed to request permission: jm", err);
+        return null;
+      }
+    }
+
     render() {
         const { navigate } = this.props.navigation;
 
@@ -73,7 +107,7 @@ class MenuOptions extends Component {
                             <Image style={localStyles.menuButton} source={registerAsset} />
                         </TouchableHighlight>
                     </View>
-                  
+
                     <TouchableHighlight disabled={!this.props.assets} style={localStyles.touchableHighlight}
                     onPress={() => navigate("SupplyChainAssetList")}>
                       <Image style={localStyles.menuButton} source={supplyChain} />

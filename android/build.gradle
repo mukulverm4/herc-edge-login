@@ -28,7 +28,3 @@ allprojects {
         }
     }
 }
-
-ext {
-  googlePlayServicesVersion = "16.0.0"
-}

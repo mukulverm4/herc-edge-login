@@ -18,8 +18,6 @@ import { WEB_SERVER_API_TOKEN, WEB_SERVER_API_LATEST_APK } from "../components/s
 import { makeEdgeContext } from 'edge-core-js';
 import { EDGE_API_KEY } from '../components/settings.js'
 import firebase from "../constants/Firebase";
-import Geolocation from 'react-native-geolocation-service';
-
 
 class Login extends Component {
   static navigationOptions = {
@@ -47,30 +45,7 @@ class Login extends Component {
   })
 }
 
-componentDidMount() {
-  this._requestFineLocationPermission();
-}
 
-
-_requestFineLocationPermission = async () => {
-  try {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.ACCESS_FINE_LOCATION,
-      {
-        title: "Herc Location-Enabled Permission",
-        message:
-          "Herc needs access to your location " +
-          "to provide the most accurate experience."
-      }
-    );
-    console.log("You can use the ACCESS_FINE_LOCATION", granted)
-    return granted;
-  } catch (err) {
-    console.log( "ACCESS_FINE_LOCATION permission denied" )
-    console.error("Failed to request permission ", err);
-    return null;
-  }
-};
 
   onLogin = async (error = null, account) => {
     let tokenHerc = {
