@@ -30,5 +30,5 @@ allprojects {
 }
 
 ext {
-  googlePlayServicesVersion = "49.0.0"
+  googlePlayServicesVersion = "16.0.0"
 }
