@@ -70,7 +70,10 @@ class Wallet extends React.Component {
   _updateWallet = () => {
     if (!this.props.watchBalance || !this.props.watchBalance.ETH) {
       let displayWallet = this.state.displayWallet;
-      console.log("Display Wallet: ",this.props.wallet.balances[displayWallet])
+      console.log(
+        "Display Wallet: ",
+        this.props.wallet.balances[displayWallet]
+      );
       let tempBalance = new BigNumber(this.props.wallet.balances[displayWallet])
         .times(1e-18)
         .toFixed(6);
@@ -83,7 +86,6 @@ class Wallet extends React.Component {
         .toFixed(6);
       return tempBalance;
     }
-
   };
   async _onPressSend() {
     const wallet = this.props.wallet;
@@ -158,7 +160,6 @@ class Wallet extends React.Component {
         radio_props.push({ label: currentItem, value: currentItem });
       }
     );
-
     return (
       <View style={{ marginBottom: "5%" }}>
         <RadioForm
@@ -176,11 +177,47 @@ class Wallet extends React.Component {
     );
   };
 
+  _generateETHTextInput = () => {
+    console.log(this.state.displayWallet, "in the generate text input");
+    if (this.state.displayWallet === "ETH") {
+      return (
+        <View style={localStyles.textInputContainer}>
+          <TextInput
+            style={localStyles.textInputs}
+            onChangeText={sendAmount => this.setState({ sendAmount })}
+            placeholderTextColor="silver"
+            placeholder="Send Amount (ETH)"
+            underlineColorAndroid="transparent"
+            selectionColor={"gold"}
+          />
+        </View>
+      );
+    }
+  };
+
+  _generateHERCTextInput = () => {
+    if (this.state.displayWallet === "HERC") {
+      return (
+        <View style={localStyles.textInputContainer}>
+          <TextInput
+            style={localStyles.textInputs}
+            onChangeText={sendAmount => this.setState({ sendAmount })}
+            placeholderTextColor="silver"
+            placeholder="Send Amount (HERC)"
+            underlineColorAndroid="transparent"
+            selectionColor={"gold"}
+          />
+        </View>
+      );
+    }
+  };
+
   render() {
-    let displayWallet = this.state.displayWallet
+    let displayWallet = this.state.displayWallet;
+    let testPlaceholder = "this is test" + displayWallet;
     // let currencyValue = this._updateWallet() === NaN ? '0.000000' : this._updateWallet();
-    let currencyValue = this._updateWallet() // don't assume NaN means 0. It will freak out ppl with a lot of tokens
-    console.log(currencyValue, 'currencyValue in wallet.js')
+    let currencyValue = this._updateWallet(); // don't assume NaN means 0. It will freak out ppl with a lot of tokens
+    console.log(currencyValue, "currencyValue in wallet.js");
     return (
       <ScrollView>
         <View style={styles.container}>
@@ -199,15 +236,7 @@ class Wallet extends React.Component {
               </View>
             </View>
             <TextInput
-              style={{
-                width: "80%",
-                marginTop: "10%",
-                textAlign: "center",
-                borderColor: "gold",
-                borderWidth: 1,
-                borderRadius: 10,
-                color: "white"
-              }}
+              style={localStyles.textInputs}
               onChangeText={destAddress => this.setState({ destAddress })}
               placeholderTextColor="silver"
               placeholder="Destination Address"
@@ -215,60 +244,26 @@ class Wallet extends React.Component {
               underlineColorAndroid="transparent"
               selectionColor={"gold"}
             />
-            <TextInput
-              style={{
-                width: "80%",
-                marginTop: "5%",
-                textAlign: "center",
-                borderColor: "gold",
-                borderWidth: 1,
-                borderRadius: 10,
-                color: "white"
-              }}
-              onChangeText={sendAmount => this.setState({ sendAmount })}
-              placeholderTextColor="silver"
-              placeholder="Amount(ETH)"
-              underlineColorAndroid="transparent"
-              selectionColor={"gold"}
-            />
+
+            {this._generateETHTextInput()}
+            {this._generateHERCTextInput()}
 
             <TouchableHighlight
               style={{ marginTop: 10 }}
               onPress={() => this._onPressSend()}
             >
               <Text
-                style={{
-                  backgroundColor: "green",
-                  width: 100,
-                  lineHeight: 30,
-                  height: 30,
-                  borderRadius: 5,
-                  color: "white",
-                  textAlign: "center",
-                  justifyContent: "center",
-                  alignContent: "center"
-                }}
+                style={localStyles.send_Text}
               >
                 Send
               </Text>
             </TouchableHighlight>
-
             <View
-              style={{
-                marginTop: "10%",
-                borderBottomColor: "white",
-                borderBottomWidth: 1,
-                width: "100%"
-              }}
+              style={localStyles.seperatingBorder}
             />
 
             <View
-              style={{
-                marginTop: "5%",
-                alignContent: "center",
-                alignItems: "center",
-                margin: 5
-              }}
+              style={localStyles.receiveContainer}
             >
               <Text style={{ color: "white", fontSize: 18 }}>RECEIVE</Text>
               <View
@@ -290,18 +285,7 @@ class Wallet extends React.Component {
                   }}
                 >
                   <Text
-                    style={{
-                      marginTop: 10,
-                      backgroundColor: "#4c99ed",
-                      width: 100,
-                      lineHeight: 30,
-                      height: 30,
-                      borderRadius: 5,
-                      color: "white",
-                      textAlign: "center",
-                      justifyContent: "center",
-                      alignContent: "center"
-                    }}
+                    style={localStyles.copyButton}
                   >
                     Copy
                   </Text>
@@ -313,13 +297,7 @@ class Wallet extends React.Component {
                 >
                   <View>
                     <Text
-                      style={{
-                        marginTop: "30%",
-                        color: "white",
-                        textAlign: "center",
-                        justifyContent: "center",
-                        alignContent: "center"
-                      }}
+                      style={localStyles.topUpHercs}
                     >
                       Top Up HERCs
                     </Text>
@@ -406,5 +384,63 @@ const localStyles = StyleSheet.create({
     fontWeight: "normal",
     margin: 5,
     fontFamily: "dinPro"
+  },
+  textInputContainer: {
+    width: "100%",
+    height: 100,
+    alignSelf: "center",
+    justifyContent: "center"
+  },
+  textInputs: {
+    alignSelf: "center",
+    width: "80%",
+    marginTop: "5%",
+    textAlign: "center",
+    borderColor: "gold",
+    borderWidth: 1,
+    borderRadius: 10,
+    color: "white"
+  },
+  copyButton: {
+    marginTop: 10,
+    backgroundColor: "#4c99ed",
+    width: 100,
+    lineHeight: 30,
+    height: 30,
+    borderRadius: 5,
+    color: "white",
+    textAlign: "center",
+    justifyContent: "center",
+    alignContent: "center"
+  },
+  send_Text: {
+    backgroundColor: "green",
+    width: 100,
+    lineHeight: 30,
+    height: 30,
+    borderRadius: 5,
+    color: "white",
+    textAlign: "center",
+    justifyContent: "center",
+    alignContent: "center"
+  },
+  topUpHercs: {
+    marginTop: "30%",
+    color: "white",
+    textAlign: "center",
+    justifyContent: "center",
+    alignContent: "center"
+  },
+  receiveContainer: {
+    marginTop: "5%",
+    alignContent: "center",
+    alignItems: "center",
+    margin: 5
+  },
+  seperatingBorder: {
+    marginTop: "10%",
+    borderBottomColor: "white",
+    borderBottomWidth: 1,
+    width: "100%"
   }
 });
