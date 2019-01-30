@@ -43,16 +43,6 @@ class MenuOptions extends Component {
     componentDidMount() {
       this._requestFineLocationPermission();
         // this.props.clearState();
-        console.log("jm Geolocation:", Geolocation)
-        Geolocation.getCurrentPosition(
-          (position) => {
-            console.log("jm Geolocation Position:", position);
-          },
-          (error) => {
-            console.log("jm Geolocation Error: ", error.code, error.message);
-          }
-        );
-
         this.props.getHercId();
         this.props.getAssets(this.props.username);
         this.props.getOrganization();
