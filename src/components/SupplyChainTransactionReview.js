@@ -135,6 +135,28 @@ if this.props.transDataFlags.confTransComplete => charge them.
       let newbalance = balance.minus(totalBN);
 
       console.log("chance, do you have enough?", newbalance.isPositive());
+      /*
+
+
+
+
+
+
+
+STOP
+at this point, you've checked the balance...
+
+
+Now, if they have enough, then start the transaction. After this.props.transDataFlags.confTransComplete is true, charge them.
+
+If they do not have enough, then throw alert.
+
+
+
+
+
+
+      */
 
       if (newbalance.isNegative()) {
         Alert.alert(
