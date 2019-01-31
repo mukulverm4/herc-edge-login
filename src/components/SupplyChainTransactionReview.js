@@ -116,7 +116,7 @@ class SupplyChainTransactionReview extends Component {
 
       if (burnTransaction.txid && dataFeeTransaction.txid) {
         console.log("jm burnTransaction.txid && dataFeeTransaction.txid", burnTransaction.txid, dataFeeTransaction.txid)
-        this.props.storeTransactionIds({burnTransaction: burnTransaction.txid, dataFeeTransaction: dataFeeTransaction.txid})
+        this.setState({ madePayment: true }, () => { this.props.storeTransactionIds({burnTransaction: burnTransaction.txid, dataFeeTransaction: dataFeeTransaction.txid })})
       }
     } catch (e) {
       let tempBalance = new BigNumber(this.props.watchBalance["ETH"]);
