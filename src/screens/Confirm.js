@@ -121,7 +121,7 @@ class Confirm extends Component {
           <Image style={localStyles.assetLocationLabel} source={locationImage} />
           <ScrollView style={{ alignSelf: "center", width: "100%", paddingRight: 10 }}>
             {list}
-            <TouchableHighlight style={localStyles.button}} onPress={() => navigate('SupplyChainReview', { logo: this.props.logo, name: this.props.name })}>
+            <TouchableHighlight style={localStyles.button} onPress={() => navigate('SupplyChainReview', { logo: this.props.logo, name: this.props.name })}>
               <Text>Submit</Text>
             </TouchableHighlight>
             {/* <View style={styles.assetFee}>
@@ -217,16 +217,13 @@ const localStyles = StyleSheet.create({
     padding: 5,
     justifyContent: "center",
     alignItems: "center",
+  },
+  text: {
+      color: "white",
+      alignSelf: "center",
+      fontSize: 16,
+      fontWeight: "normal",
+      margin: 5,
+      fontFamily: "dinPro"
   }
-
-
-    text: {
-        color: "white",
-        alignSelf: "center",
-        fontSize: 16,
-        fontWeight: "normal",
-        margin: 5,
-        fontFamily: "dinPro"
-    },
-
 })
