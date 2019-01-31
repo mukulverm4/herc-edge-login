@@ -17,6 +17,7 @@ import { connect } from "react-redux";
 import { StackNavigator } from "react-navigation";
 import styles from "../assets/styles";
 import { sendTrans } from "../actions/AssetActions";
+import { storeTransactionIds, clearTransactionStore } from "../actions/WalletActActions";
 import fee from "../assets/hercLogoPillar.png";
 import newOriginator from "./buttons/originatorButton.png";// todo: turn into vector
 import newRecipient from "./buttons/recipientButton.png"; // todo: turn into vector
@@ -31,7 +32,8 @@ class SupplyChainTransactionReview extends Component {
     this.state = {
       modalVisible: false,
       balance: null,
-      hercValue: null
+      hercValue: null,
+      madePayment: false
     };
   }
   componentDidMount = () => {
@@ -41,7 +43,7 @@ class SupplyChainTransactionReview extends Component {
 
     try {
       let balance = new BigNumber(this.props.watchBalance["HERC"]);
-      this.setState({ balance: balance.times(1e-18).toFixed(6) });ac
+      this.setState({ balance: balance.times(1e-18).toFixed(6) });
     } catch (e) {
       if (this.props.wallet.balances["HERC"]) {
         let balance = new BigNumber(this.props.wallet.balances["HERC"]); // if balances:{} this will NaN
@@ -114,19 +116,12 @@ class SupplyChainTransactionReview extends Component {
 
       if (burnTransaction.txid && dataFeeTransaction.txid) {
         console.log("jm burnTransaction.txid && dataFeeTransaction.txid", burnTransaction.txid, dataFeeTransaction.txid)
-        /*
-
-
-        put into reducer
-
-
-        */
-        // this._sendTrans();
+        this.props.storeTransactionIds({burnTransaction: burnTransaction.txid, dataFeeTransaction: dataFeeTransaction.txid})
       }
     } catch (e) {
       let tempBalance = new BigNumber(this.props.watchBalance["ETH"]);
       let ethBalance = tempBalance.times(1e-18).toFixed(6);
-      this.setState({ modalVisible: false });
+      this._changeModalVisibility(false)
       Alert.alert(
         "Insufficient ETH Funds",
         "Balance: " + ethBalance + " ETH",
@@ -209,7 +204,7 @@ class SupplyChainTransactionReview extends Component {
       let totalBN = new BigNumber(this._getDocPrice()).plus(this._getImgPrice()).plus(this._getNetworkFee());
       let newbalance = balance.minus(totalBN);
 
-      console.log("chance, do you have enough?", newbalance.isPositive());
+      console.log("Do you have enough? jm", newbalance.isPositive());
 
       if (newbalance.isNegative()) {
         Alert.alert(
@@ -226,31 +221,8 @@ class SupplyChainTransactionReview extends Component {
           { cancelable: true }
         );
       } else {
-        this.setState({ modalVisible: true });
+        this._changeModalVisibility(true);
         this._sendTrans();
-        /*
-
-
-
-
-
-
-
-  STOP
-  at this point, you've checked the balance...
-
-
-  Now, if they have enough, then start the transaction. After this.props.transDataFlags.confTransComplete is true, charge them.
-
-  If they do not have enough, then throw alert.
-  julie notes- 2 possibilities
-  1. when flag is set to true, trigger a function in SupplyChainTransactionReview.js
-  2. when flag is set to true in AssetActions.js, dispatch another action in WalletActActions.js
-
-
-
-        */
-
       }
     }
   }
@@ -262,11 +234,6 @@ class SupplyChainTransactionReview extends Component {
   };
 
   _sendTrans() {
-    // let docPrice = parseFloat(this._getDocPrice());
-    // let imgPrice = parseFloat(this._getImgPrice());
-    // let networkFee = parseFloat(this._getNetworkFee());
-    // let total = imgPrice + docPrice + networkFee;
-
     let totalBN = new BigNumber(this._getDocPrice()).plus(this._getImgPrice()).plus(this._getNetworkFee()).toFixed(18);
 
     // console.log(docPrice, imgPrice, networkFee, total, "chance price check on send trans");
@@ -417,6 +384,8 @@ class SupplyChainTransactionReview extends Component {
 
   _goToMenu = () => {
     this._changeModalVisibility(false);
+    // clear out TrnasactionStore
+    this.props.clearTransactionStore();
     this.props.navigate("MenuOptions");
   };
 
@@ -443,7 +412,9 @@ class SupplyChainTransactionReview extends Component {
       );
     }
 
-    if (this.props.transDataFlags.confTransComplete) {
+    if (this.props.transDataFlags.confTransComplete && this.state.madePayment === false) {
+      // Warning: do not remove "this.state.madePayment === false"
+      // or you will create an infinite loop of charges.
       this._triggerPayment()
     }
     /// I'm using a smaller location image locally. localStyles.assetLocationLabel
@@ -499,8 +470,14 @@ class SupplyChainTransactionReview extends Component {
                   color="#091141"
                 />
               </View>
-              {this.props.transDataFlags.confTransComplete && (
+              {this.props.transactionIdStore && (
                 <View>
+                  <Text style={modalStyle.wordsText}>
+                    Burn Transaction ID: {this.props.transactionIdStore.burnTransaction}
+                  </Text>
+                  <Text style={modalStyle.wordsText}>
+                    Data Fee Transaction ID: {this.props.transactionIdStore.dataFeeTransaction}
+                  </Text>
                   <Text style={modalStyle.wordsText}>
                     Your Transaction Has Completed!
                   </Text>
@@ -648,11 +625,14 @@ const mapStateToProps = state => ({
   transDataFlags: state.AssetReducers.transDataFlags,
   wallet: state.WalletActReducers.wallet,
   watchBalance: state.WalletActReducers.watchBalance,
-  edgeAccount: state.WalletActReducers.edge_account
+  edgeAccount: state.WalletActReducers.edge_account,
+  transactionIdStore: state.WalletActReducers.transactionIdStore
 });
 
 const mapDispatchToProps = dispatch => ({
-  sendTrans: transPrice => dispatch(sendTrans(transPrice))
+  sendTrans: transPrice => dispatch(sendTrans(transPrice)),
+  storeTransactionIds: transactionIds => dispatch(storeTransactionIds(transactionIds)),
+  clearTransactionStore: () => dispatch(clearTransactionStore())
 });
 
 export default connect(

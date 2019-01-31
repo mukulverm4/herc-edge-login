@@ -53,6 +53,8 @@ export const GET_USERNAME = 'getUsername';
 export const GET_WALLET = 'getWallet';
 export const GET_ACCOUNT = 'getAccount';
 export const UPDATE_BALANCES = 'updateBalances';
+export const STORE_TRANSACTION_IDS = 'storeTransactionIds';
+export const CLEAR_TRANSACTION_STORE = 'clearTransactionStore';
 
 ///// ACCOUNT TYPES /////
 export const AUTH_TOKEN = 'authToken';

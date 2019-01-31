@@ -187,15 +187,9 @@ class SupplyChainTxRx extends Component {
   };
 
   _getOriginTrans = (password) => {
-
-
     const { navigate } = this.props.navigation;
-
-    console.log(this.state, "state in_getORigin");
-    // if (this.state.location === 'Recipient') {
     let originalTransInfo;
     let origTransHeader;
-
 
     for (const key of Object.keys(this.props.transactions)) {
       if (this.props.asset.transactions[key].header.password) {
@@ -218,33 +212,14 @@ class SupplyChainTxRx extends Component {
       }
     }
   };
-  // if (this.props.transactions[key].transData) {
-  //   pwlocation = this.props.transactions[key].transData;
-  // }
-  // console.log(key);
-  // if (pwlocation.password === password) {
-  //   console.log(pwlocation, "pwlocation");
-  //   console.log("gotone", key, password);
-
-
-  // return originalTransInfo;
-  // this will be where the transaction data is collected, the transactions moving forward will be
-  // saved in the "transData" directory beneath the firebase pushkey.
-
-
-
 
 
   componentDidMount() {
-    StatusBar.setBackgroundColor("white");
-    StatusBar.setBarStyle("dark-content", true);
+    // StatusBar.setBackgroundColor("white");
+    // StatusBar.setBarStyle("dark-content", true);
   }
   render() {
-    console.log(this.state, 'the state')
     return (
-      ///  I'm consistancizing all the button sizes to 50x200 or about 53%
-      /// the styles for the location images (originator/recipient) is located at styles.locationImage
-
       <View style={styles.container}>
         <View style={styles.containerCenter}>
           <Text style={{ fontSize: 15, marginTop: '10%', color: "#F3C736" }}>Where are you along the Supply Chain? </Text>
@@ -268,6 +243,8 @@ class SupplyChainTxRx extends Component {
               </Text>
               <View style={localStyles.passwordTextInputView}>
                 <TextInput
+                  ref={(input) => { this.textInput = input; }}
+                  autoFocus={true}
                   autoCorrect={false}
                   spellCheck={false}
                   underlineColorAndroid="transparent"

@@ -12,6 +12,8 @@ import {
     DELETE_WALLET,
     SWITCH_WALLET,
     ADD_WALLET,
+    STORE_TRANSACTION_IDS,
+    CLEAR_TRANSACTION_STORE
 }
     from './types';
 import store from "../store";
@@ -52,7 +54,7 @@ export function updateBalances(newBalances) {
       newBalances
     };
   }
-  
+
 export function gettingOrganization(organizationName){
   return {
       type: GETTING_ORGANIZATION,
@@ -102,6 +104,21 @@ export function deleteWallet(walletName) {
         data: walletName
 
     }
+}
+
+export function clearTransactionStore() {
+  console.log("jm clearing transaction store.... 1/2")
+  return {
+    type: CLEAR_TRANSACTION_STORE
+  };
+}
+
+export function storeTransactionIds(transactionIds) {
+  console.log("jm transactionIds in actions", transactionIds)
+  return {
+    type: STORE_TRANSACTION_IDS,
+    transactionIds
+  };
 }
 
 export function switchWallet(walletName) {
