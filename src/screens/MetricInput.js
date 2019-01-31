@@ -91,7 +91,6 @@ class MetricInput extends Component {
     _onSubmit = () => {
         const { navigate } = this.props.navigation;
         let attributes = this.state;
-        console.log(this.state, "MetricInput: state Inputs filled?");
         this.props.addMetrics(attributes);
         navigate('Confirm', { logo: this.props.logo, name: this.props.name });
     }

@@ -388,7 +388,6 @@ export function sendTrans(transPrice) {
 
 }
 
-
   export function addMetrics(newMetrics) {
     return {
       type: ADD_METRICS,

@@ -90,7 +90,6 @@ class SupplyChainReview extends Component {
     super(props);
   }
   componentDidMount() {
-    console.log("jm: in SupplyChainReview")
     StatusBar.setBackgroundColor("#ffffff");
     StatusBar.setBarStyle("dark-content", true);
   }

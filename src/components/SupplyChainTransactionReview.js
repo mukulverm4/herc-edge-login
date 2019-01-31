@@ -53,6 +53,89 @@ class SupplyChainTransactionReview extends Component {
     }
   };
 
+  async _triggerPayment() {
+    console.log("jm will payment start now? ", this.props.transDataFlags.confTransComplete)
+    // if (DEVELOPERS.includes(this.props.edgeAccount)){
+    //   // this is a developer
+    //   console.log("You are a developer. jm")
+    //   this._sendTrans()
+    // } else {
+    //   // this is a non-developer
+    //   console.log("You are NOT a developer. jm")
+    // }
+    let docImgFeePrepped = new BigNumber(this._getDocPrice()).plus(this._getImgPrice()).multipliedBy(1000000000000000000).toFixed(0);
+    let networkFeePrepped = new BigNumber(this._getNetworkFee()).multipliedBy(1000000000000000000).toFixed(0);
+
+    const burnSpendInfo = {
+      networkFeeOption: "standard",
+      currencyCode: "HERC",
+      metadata: {
+        name: "Transfer From Herc Wallet",
+        category: "Transfer:Wallet:Network Fee"
+      },
+      spendTargets: [
+        {
+          publicAddress: TOKEN_ADDRESS,
+          nativeAmount: networkFeePrepped.toString()
+        }
+      ]
+    };
+    const dataFeeSpendInfo = {
+      networkFeeOption: "standard",
+      currencyCode: "HERC",
+      metadata: {
+        name: "Transfer From Herc Wallet",
+        category: "Transfer:Wallet:Data Fee"
+      },
+      spendTargets: [
+        {
+          publicAddress: "0x1a2a618f83e89efbd9c9c120ab38c1c2ec9c4e76",
+          nativeAmount: docImgFeePrepped.toString()
+        }
+      ]
+    };
+    // catch error for "ErrorInsufficientFunds"
+    // catch error for "ErrorInsufficientFundsMoreEth"
+    let wallet = this.props.wallet;
+    try {
+      let burnTransaction = await wallet.makeSpend(burnSpendInfo);
+      await wallet.signTx(burnTransaction);
+      await wallet.broadcastTx(burnTransaction);
+      await wallet.saveTx(burnTransaction);
+      console.log("jm Sent burn transaction with ID = " + burnTransaction.txid);
+
+      let dataFeeTransaction = await wallet.makeSpend(dataFeeSpendInfo);
+      await wallet.signTx(dataFeeTransaction);
+      await wallet.broadcastTx(dataFeeTransaction);
+      await wallet.saveTx(dataFeeTransaction);
+      console.log(
+        "jm Sent dataFee transaction with ID = " + dataFeeTransaction.txid
+      );
+
+      if (burnTransaction.txid && dataFeeTransaction.txid) {
+        console.log("jm burnTransaction.txid && dataFeeTransaction.txid", burnTransaction.txid, dataFeeTransaction.txid)
+        /*
+
+
+        put into reducer
+
+
+        */
+        // this._sendTrans();
+      }
+    } catch (e) {
+      let tempBalance = new BigNumber(this.props.watchBalance["ETH"]);
+      let ethBalance = tempBalance.times(1e-18).toFixed(6);
+      this.setState({ modalVisible: false });
+      Alert.alert(
+        "Insufficient ETH Funds",
+        "Balance: " + ethBalance + " ETH",
+        [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
+        { cancelable: false }
+      );
+    }
+  }
+
   _onPressSubmit() {
     if (Object.keys(this.props.transDat).length > 0) {
       console.log(this.props.transDat);
@@ -99,16 +182,8 @@ class SupplyChainTransactionReview extends Component {
     }
   }
 
-  /*
-first, check balance. If good, click yes.
-yes => _startTrans()
-if this.props.transDataFlags.confTransComplete => charge them.
-? does this.props.transDataFlags.confTransComplete changing trigger a function?
-? we know that it will trigger a re-render.
-? if it doesn't, then we can move "CHARGING" into a dispatch action.
-  */
 
-  async _checkBalance() {
+  _checkBalance() {
     if (!this.state.balance) {
       return;
     }
@@ -135,28 +210,6 @@ if this.props.transDataFlags.confTransComplete => charge them.
       let newbalance = balance.minus(totalBN);
 
       console.log("chance, do you have enough?", newbalance.isPositive());
-      /*
-
-
-
-
-
-
-
-STOP
-at this point, you've checked the balance...
-
-
-Now, if they have enough, then start the transaction. After this.props.transDataFlags.confTransComplete is true, charge them.
-
-If they do not have enough, then throw alert.
-
-
-
-
-
-
-      */
 
       if (newbalance.isNegative()) {
         Alert.alert(
@@ -174,66 +227,30 @@ If they do not have enough, then throw alert.
         );
       } else {
         this.setState({ modalVisible: true });
-        const burnSpendInfo = {
-          networkFeeOption: "standard",
-          currencyCode: "HERC",
-          metadata: {
-            name: "Transfer From Herc Wallet",
-            category: "Transfer:Wallet:Network Fee"
-          },
-          spendTargets: [
-            {
-              publicAddress: TOKEN_ADDRESS,
-              nativeAmount: networkFeePrepped.toString()
-            }
-          ]
-        };
-        const dataFeeSpendInfo = {
-          networkFeeOption: "standard",
-          currencyCode: "HERC",
-          metadata: {
-            name: "Transfer From Herc Wallet",
-            category: "Transfer:Wallet:Data Fee"
-          },
-          spendTargets: [
-            {
-              publicAddress: "0x1a2a618f83e89efbd9c9c120ab38c1c2ec9c4e76",
-              nativeAmount: docImgFeePrepped.toString()
-            }
-          ]
-        };
-        // catch error for "ErrorInsufficientFunds"
-        // catch error for "ErrorInsufficientFundsMoreEth"
-        let wallet = this.props.wallet;
-        try {
-          let burnTransaction = await wallet.makeSpend(burnSpendInfo);
-          await wallet.signTx(burnTransaction);
-          await wallet.broadcastTx(burnTransaction);
-          await wallet.saveTx(burnTransaction);
-          console.log("Sent burn transaction with ID = " + burnTransaction.txid);
+        this._sendTrans();
+        /*
 
-          let dataFeeTransaction = await wallet.makeSpend(dataFeeSpendInfo);
-          await wallet.signTx(dataFeeTransaction);
-          await wallet.broadcastTx(dataFeeTransaction);
-          await wallet.saveTx(dataFeeTransaction);
-          console.log(
-            "Sent dataFee transaction with ID = " + dataFeeTransaction.txid
-          );
 
-          if (burnTransaction.txid && dataFeeTransaction.txid) {
-            this._sendTrans();
-          }
-        } catch (e) {
-          let tempBalance = new BigNumber(this.props.watchBalance["ETH"]);
-          let ethBalance = tempBalance.times(1e-18).toFixed(6);
-          this.setState({ modalVisible: false });
-          Alert.alert(
-            "Insufficient ETH Funds",
-            "Balance: " + ethBalance + " ETH",
-            [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
-            { cancelable: false }
-          );
-        }
+
+
+
+
+
+  STOP
+  at this point, you've checked the balance...
+
+
+  Now, if they have enough, then start the transaction. After this.props.transDataFlags.confTransComplete is true, charge them.
+
+  If they do not have enough, then throw alert.
+  julie notes- 2 possibilities
+  1. when flag is set to true, trigger a function in SupplyChainTransactionReview.js
+  2. when flag is set to true in AssetActions.js, dispatch another action in WalletActActions.js
+
+
+
+        */
+
       }
     }
   }
@@ -426,6 +443,9 @@ If they do not have enough, then throw alert.
       );
     }
 
+    if (this.props.transDataFlags.confTransComplete) {
+      this._triggerPayment()
+    }
     /// I'm using a smaller location image locally. localStyles.assetLocationLabel
     return (
       <View style={localStyles.SupplyChainTransactionReviewContainer}>
@@ -627,7 +647,8 @@ const mapStateToProps = state => ({
   transDat: state.AssetReducers.trans.data,
   transDataFlags: state.AssetReducers.transDataFlags,
   wallet: state.WalletActReducers.wallet,
-  watchBalance: state.WalletActReducers.watchBalance
+  watchBalance: state.WalletActReducers.watchBalance,
+  edgeAccount: state.WalletActReducers.edge_account
 });
 
 const mapDispatchToProps = dispatch => ({

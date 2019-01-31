@@ -230,7 +230,6 @@ const AssetReducers = (state = INITIAL_STATE, action) => {
 
         case ADD_METRICS:
             const properties = action.data;
-            console.log(properties, "updating attributes in reducers");
             return Object.assign({}, state, {
                 ...state,
 
