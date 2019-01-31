@@ -114,7 +114,6 @@ export function clearTransactionStore() {
 }
 
 export function storeTransactionIds(transactionIds) {
-  console.log("jm transactionIds in actions", transactionIds)
   return {
     type: STORE_TRANSACTION_IDS,
     transactionIds

@@ -55,81 +55,7 @@ class SupplyChainTransactionReview extends Component {
     }
   };
 
-  async _triggerPayment() {
-    console.log("jm will payment start now? ", this.props.transDataFlags.confTransComplete)
-    // if (DEVELOPERS.includes(this.props.edgeAccount)){
-    //   // this is a developer
-    //   console.log("You are a developer. jm")
-    //   this._sendTrans()
-    // } else {
-    //   // this is a non-developer
-    //   console.log("You are NOT a developer. jm")
-    // }
-    let docImgFeePrepped = new BigNumber(this._getDocPrice()).plus(this._getImgPrice()).multipliedBy(1000000000000000000).toFixed(0);
-    let networkFeePrepped = new BigNumber(this._getNetworkFee()).multipliedBy(1000000000000000000).toFixed(0);
 
-    const burnSpendInfo = {
-      networkFeeOption: "standard",
-      currencyCode: "HERC",
-      metadata: {
-        name: "Transfer From Herc Wallet",
-        category: "Transfer:Wallet:Network Fee"
-      },
-      spendTargets: [
-        {
-          publicAddress: TOKEN_ADDRESS,
-          nativeAmount: networkFeePrepped.toString()
-        }
-      ]
-    };
-    const dataFeeSpendInfo = {
-      networkFeeOption: "standard",
-      currencyCode: "HERC",
-      metadata: {
-        name: "Transfer From Herc Wallet",
-        category: "Transfer:Wallet:Data Fee"
-      },
-      spendTargets: [
-        {
-          publicAddress: "0x1a2a618f83e89efbd9c9c120ab38c1c2ec9c4e76",
-          nativeAmount: docImgFeePrepped.toString()
-        }
-      ]
-    };
-    // catch error for "ErrorInsufficientFunds"
-    // catch error for "ErrorInsufficientFundsMoreEth"
-    let wallet = this.props.wallet;
-    try {
-      let burnTransaction = await wallet.makeSpend(burnSpendInfo);
-      await wallet.signTx(burnTransaction);
-      await wallet.broadcastTx(burnTransaction);
-      await wallet.saveTx(burnTransaction);
-      console.log("jm Sent burn transaction with ID = " + burnTransaction.txid);
-
-      let dataFeeTransaction = await wallet.makeSpend(dataFeeSpendInfo);
-      await wallet.signTx(dataFeeTransaction);
-      await wallet.broadcastTx(dataFeeTransaction);
-      await wallet.saveTx(dataFeeTransaction);
-      console.log(
-        "jm Sent dataFee transaction with ID = " + dataFeeTransaction.txid
-      );
-
-      if (burnTransaction.txid && dataFeeTransaction.txid) {
-        console.log("jm burnTransaction.txid && dataFeeTransaction.txid", burnTransaction.txid, dataFeeTransaction.txid)
-        this.setState({ madePayment: true }, () => { this.props.storeTransactionIds({burnTransaction: burnTransaction.txid, dataFeeTransaction: dataFeeTransaction.txid })})
-      }
-    } catch (e) {
-      let tempBalance = new BigNumber(this.props.watchBalance["ETH"]);
-      let ethBalance = tempBalance.times(1e-18).toFixed(6);
-      this._changeModalVisibility(false)
-      Alert.alert(
-        "Insufficient ETH Funds",
-        "Balance: " + ethBalance + " ETH",
-        [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
-        { cancelable: false }
-      );
-    }
-  }
 
   _onPressSubmit() {
     if (Object.keys(this.props.transDat).length > 0) {
@@ -241,6 +167,75 @@ class SupplyChainTransactionReview extends Component {
     // let convertingTotal = new BigNumber(total)
     // let newTotal = convertingTotal.toFixed(6)
     this.props.sendTrans(totalBN);
+  }
+
+  async _triggerPayment() {
+    console.log("jm will payment start now? ", this.props.transDataFlags.confTransComplete)
+    let docImgFeePrepped = new BigNumber(this._getDocPrice()).plus(this._getImgPrice()).multipliedBy(1000000000000000000).toFixed(0);
+    let networkFeePrepped = new BigNumber(this._getNetworkFee()).multipliedBy(1000000000000000000).toFixed(0);
+    console.log("jm infinite my ass", networkFeePrepped.toString(), docImgFeePrepped.toString())
+
+    const burnSpendInfo = {
+      networkFeeOption: "standard",
+      currencyCode: "HERC",
+      metadata: {
+        name: "Transfer From Herc Wallet",
+        category: "Transfer:Wallet:Network Fee"
+      },
+      spendTargets: [
+        {
+          publicAddress: TOKEN_ADDRESS,
+          nativeAmount: networkFeePrepped.toString()
+        }
+      ]
+    };
+    const dataFeeSpendInfo = {
+      networkFeeOption: "standard",
+      currencyCode: "HERC",
+      metadata: {
+        name: "Transfer From Herc Wallet",
+        category: "Transfer:Wallet:Data Fee"
+      },
+      spendTargets: [
+        {
+          publicAddress: "0x1a2a618f83e89efbd9c9c120ab38c1c2ec9c4e76",
+          nativeAmount: docImgFeePrepped.toString()
+        }
+      ]
+    };
+    // catch error for "ErrorInsufficientFunds"
+    // catch error for "ErrorInsufficientFundsMoreEth"
+    let wallet = this.props.wallet;
+    try {
+      let burnTransaction = await wallet.makeSpend(burnSpendInfo);
+      await wallet.signTx(burnTransaction);
+      await wallet.broadcastTx(burnTransaction);
+      await wallet.saveTx(burnTransaction);
+      console.log("jm Sent burn transaction with ID = " + burnTransaction.txid);
+
+      let dataFeeTransaction = await wallet.makeSpend(dataFeeSpendInfo);
+      await wallet.signTx(dataFeeTransaction);
+      await wallet.broadcastTx(dataFeeTransaction);
+      await wallet.saveTx(dataFeeTransaction);
+      console.log(
+        "jm Sent dataFee transaction with ID = " + dataFeeTransaction.txid
+      );
+
+      if (burnTransaction.txid && dataFeeTransaction.txid) {
+        console.log("jm burnTransaction.txid && dataFeeTransaction.txid", burnTransaction.txid, dataFeeTransaction.txid)
+        this.setState({ madePayment: true }, () => { this.props.storeTransactionIds({burnTransaction: burnTransaction.txid, dataFeeTransaction: dataFeeTransaction.txid })})
+      }
+    } catch (e) {
+      let tempBalance = new BigNumber(this.props.watchBalance["ETH"]);
+      let ethBalance = tempBalance.times(1e-18).toFixed(6);
+      this._changeModalVisibility(false)
+      Alert.alert(
+        "Insufficient ETH Funds",
+        "Balance: " + ethBalance + " ETH",
+        [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
+        { cancelable: false }
+      );
+    }
   }
 
   _getNetworkFee = () => {
