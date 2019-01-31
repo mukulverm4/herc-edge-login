@@ -90,7 +90,7 @@ class MenuOptions extends Component {
                     </TouchableHighlight> */}
 
 
-                    <TouchableHighlight style={localStyles.touchableHighlight} onPress={() => navigate("Wallet")}>
+                    <TouchableHighlight disabled={!this.props.wallet} style={localStyles.touchableHighlight} onPress={() => navigate("Wallet")}>
                         <Image style={localStyles.menuButton} source={wallet} />
                     </TouchableHighlight>
 
@@ -113,7 +113,8 @@ class MenuOptions extends Component {
 
 const mapStateToProps = state => ({
     username: state.AssetReducers.edge_account,
-    assets: state.AssetReducers.assets
+    assets: state.AssetReducers.assets,
+    wallet: state.WalletActReducers.wallet,
 })
 
 const mapDispatchToProps = dispatch => ({
