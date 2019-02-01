@@ -10,7 +10,7 @@ import React, { Component } from "react";
 import { StackNavigator, SwitchNavigator } from "react-navigation";
 
 
-import BlockScanner from "../screens/BlockScanner";
+//import BlockScanner from "../screens/BlockScanner";
 import Camera from "../screens/Camera";
 import Confirm from "../screens/Confirm";
 import NewAssetLanding from "../screens/NewAssetLanding";
@@ -33,7 +33,7 @@ import NewAssetForm from "../screens/NewAssetForm";
 import TrackAssetList from "../screens/TrackAssetList";
 import TxSwiperContainer from "../screens/TxSwiperContainer";
 import TxSwiper from "../components/TxSwiper";
-import Wallet from "../screens/Wallet";
+import Wallet from "../screens/NewWallet";
 import Settings from "../screens/Settings";
 import QRCapture from "../screens/QRCapture";
 import QRCapture2 from "../screens/QRCapture2";
@@ -100,7 +100,7 @@ const MainNavigator = StackNavigator({ //this will be "createStackNavigator" aft
     HiprTransactions: { screen: HiprTransactions },
     Hipr: { screen: Hipr },
 
-    BlockScanner: { screen: BlockScanner },
+    //BlockScanner: { screen: BlockScanner },
     TxSwiperContainer: { screen: TxSwiperContainer },
 
     TrackAssetList: { screen: TrackAssetList },
@@ -184,7 +184,7 @@ const NewAssetLandingNavigator = StackNavigator({ //this will be "createStackNav
     HiprTransactions: { screen: HiprTransactions },
     Hipr: { screen: Hipr },
 
-    BlockScanner: { screen: BlockScanner },
+   // BlockScanner: { screen: BlockScanner },
     TxSwiperContainer: { screen: TxSwiperContainer },
 
     TrackAssetList: { screen: TrackAssetList },
@@ -268,7 +268,7 @@ const SupplyChainAssetListNavigator = StackNavigator({ //this will be "createSta
     HiprTransactions: { screen: HiprTransactions },
     Hipr: { screen: Hipr },
 
-    BlockScanner: { screen: BlockScanner },
+    //BlockScanner: { screen: BlockScanner },
     TxSwiperContainer: { screen: TxSwiperContainer },
 
     TrackAssetList: { screen: TrackAssetList },
@@ -352,7 +352,7 @@ const TrackAssetListNavigator = StackNavigator({ //this will be "createStackNavi
     HiprTransactions: { screen: HiprTransactions },
     Hipr: { screen: Hipr },
 
-    BlockScanner: { screen: BlockScanner },
+    //BlockScanner: { screen: BlockScanner },
     TxSwiperContainer: { screen: TxSwiperContainer },
 
     TrackAssetList: { screen: TrackAssetList },
@@ -436,7 +436,7 @@ const WalletNavigator = StackNavigator({ //this will be "createStackNavigator" a
     HiprTransactions: { screen: HiprTransactions },
     Hipr: { screen: Hipr },
 
-    BlockScanner: { screen: BlockScanner },
+    //BlockScanner: { screen: BlockScanner },
     TxSwiperContainer: { screen: TxSwiperContainer },
 
     TrackAssetList: { screen: TrackAssetList },
@@ -520,7 +520,7 @@ const DocumentStorageNavigator = StackNavigator({ //this will be "createStackNav
     HiprTransactions: { screen: HiprTransactions },
     Hipr: { screen: Hipr },
 
-    BlockScanner: { screen: BlockScanner },
+    //BlockScanner: { screen: BlockScanner },
     TxSwiperContainer: { screen: TxSwiperContainer },
 
     TrackAssetList: { screen: TrackAssetList },

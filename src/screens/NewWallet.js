@@ -8,25 +8,25 @@ import {
     ScrollView,
     Alert,
     Clipboard,
-    Linking
+    Dimensions
 } from "react-native";
 import React from "react";
-import styles from "../assets/styles";
 import hercCoin from "../assets/icons/hercCoin.png";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { connect } from "react-redux";
 import BigNumber from "bignumber.js";
 import QRCode from "react-qr-code";
-import RadioForm from "react-native-simple-radio-button";
 import Modal from "react-native-modal";
 import CustomModal from "../components/CustomModal";
+import { RNCamera } from "react-native-camera";
+
 
 ///////  All this wallet balance stuff,
 class Wallet extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            destAddress: "",
+            sendDestination: "",
             sendAmount: "",
             displayWallet: "",
             availableTokens: [],
@@ -37,9 +37,14 @@ class Wallet extends React.Component {
             receiveModalVisible: false,
             transactions: [],
             displayTransactions: true,
+            QRModalVisible: false,
+            successModalVisible: false,
+            errorModalVisible: false,
+            windowHeight:0,
 
         };
     }
+
 
 
 
@@ -76,8 +81,21 @@ class Wallet extends React.Component {
         }
 
         this._getActivity(this.props.ethereumAddress, this.state.displayWallet);
-        this.setInterval(() => console.log(this.state.transactions), 1000)
+        this.setState({windowHeight:Dimensions.get('window').height})
+
     };
+
+    _requestCameraPermission = async () => {
+        const { status } = await Permissions.askAsync(Permissions.CAMERA);
+        this.setState({
+            hasCameraPermission: status === "granted"
+        });
+    };
+
+    _handleBarCodeRead = data => {
+        this.setState({ QRModalVisible: false })
+        this.setState({ sendDestination: data.data.substring(9) })
+    }
 
     _updateWallet = () => {
         if (!this.props.watchBalance || !this.props.watchBalance.ETH) {
@@ -100,10 +118,11 @@ class Wallet extends React.Component {
 
     };
     async _onPressSend() {
+        console.log("here");
         const wallet = this.props.wallet;
-        let destAddress = this.state.destAddress;
+        let sendDestination = this.state.sendDestination;
         let sendAmountInEth = new BigNumber(this.state.sendAmount);
-        if (!destAddress) Alert.alert("Missing Destination Address");
+        if (!sendDestination) Alert.alert("Missing Destination Address");
         if (!sendAmountInEth) Alert.alert("Invalid Send Amount");
         let sendAmountInWei = sendAmountInEth.times(1e18).toString();
 
@@ -116,7 +135,7 @@ class Wallet extends React.Component {
             },
             spendTargets: [
                 {
-                    publicAddress: destAddress,
+                    publicAddress: sendDestination,
                     nativeAmount: sendAmountInWei
                 }
             ]
@@ -139,20 +158,18 @@ class Wallet extends React.Component {
                 ],
                 { cancelable: false }
             );
+            this._resetSendState();
+            this._toggleSendCrypto3();
+            this._toggleSuccessModal();
         } catch (e) {
-            let displayWallet = this.state.displayWallet;
-            let tempBalance = new BigNumber(this.props.watchBalance[displayWallet])
-                .times(1e-18)
-                .toFixed(6);
-
-            Alert.alert(
-                "Insufficient Funds",
-                "Balance: " + tempBalance + " " + displayWallet,
-                [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
-                { cancelable: false }
-            );
+            this._toggleErrorModal();
         }
         // TODO: after successful transaction, reset state.
+
+    }
+
+    _resetSendState = () => {
+        this.setState({ sendAmount: 0, sendDestination: "", })
     }
 
     writeToClipboard = async data => {
@@ -160,10 +177,6 @@ class Wallet extends React.Component {
         Alert.alert("Copied to Clipboard!", data);
     };
 
-    _addWallet = walObj => {
-        this.props.addWallet(walObj);
-        this.setModalVisible();
-    };
     _toggleSendCrypto1 = () => {
         this.setState({
             sendCrypto1ModalVisible: !this.state.sendCrypto1ModalVisible
@@ -185,6 +198,24 @@ class Wallet extends React.Component {
             receiveModalVisible: !this.state.receiveModalVisible
         })
     }
+
+    _toggleQRModal = () => {
+        this.setState({
+            QRModalVisible: !this.state.QRModalVisible
+        })
+    }
+    _toggleSuccessModal = () => {
+        this.setState({
+            successModalVisible: !this.state.QRModalVisible
+        })
+    }
+
+    _toggleErrorModal = () => {
+        this.setState({
+            errorModalVisible: !this.state.QRModalVisible
+        })
+    }
+
 
     _displayChangeCurreny = () => {
         if (this.state.displayWallet === "HERC") {
@@ -213,7 +244,7 @@ class Wallet extends React.Component {
         })
     }
 
-    _displayActivity = (transaction,index) => {
+    _displayActivity = (transaction, index) => {
         if (transaction.from === this.props.ethereumAddress) {
             activityType = "Sent";
         } else if (transaction.to === this.props.ethereumAddress) {
@@ -223,14 +254,14 @@ class Wallet extends React.Component {
         var formattedTime = t.substr(4, 17);
         return (
             <View key={index} style={[localStyles.displayActivityContainer,
-                this.state.displayTransactions ? localStyles.displayFlex : localStyles.displayNone, 
-                index%2===0?localStyles.displayActivityContainerBG1:localStyles.displayActivityContainerBG2]}>
-               <Icon style={[{flex:1,alignSelf:"center"}]} name={activityType==="Sent"?"arrow-top-right":"arrow-bottom-left"} size={32} color={activityType === "Sent" ? "#f5565b" : "#95c260"}  />
+            this.state.displayTransactions ? localStyles.displayFlex : localStyles.displayNone,
+            index % 2 === 0 ? localStyles.displayActivityContainerBG1 : localStyles.displayActivityContainerBG2]}>
+                <Icon style={[{ flex: 1, alignSelf: "center" }]} name={activityType === "Sent" ? "arrow-top-right" : "arrow-bottom-left"} size={32} color={activityType === "Sent" ? "#f5565b" : "#95c260"} />
                 <View style={{ flex: 4 }}>
-                    <Text style={{color:"#9398b2"}}>{activityType} {this.state.displayWallet}</Text>
-                    <Text style={{fontWeight:'bold'}}>{transaction.value} {this.state.displayWallet}</Text>
+                    <Text style={{ color: "#9398b2" }}>{activityType} {this.state.displayWallet}</Text>
+                    <Text style={{ fontWeight: 'bold' }}>{transaction.value} {this.state.displayWallet}</Text>
                 </View>
-                <Text style={{ flex: 3,color:"#9398b2",fontSize:12,textAlign:"right" }}>{formattedTime}</Text>
+                <Text style={{ flex: 3, color: "#9398b2", fontSize: 12, textAlign: "right" }}>{formattedTime}</Text>
             </View>
         )
     }
@@ -266,19 +297,29 @@ class Wallet extends React.Component {
     }
 
     _changeCurrency = async () => {
-
         await this.setState({ displayTransactions: false, displayWallet: this.state.displayWallet === "HERC" ? "ETH" : "HERC" }, () => this._updateWallet());
         this._getActivity(this.props.ethereumAddress, this.state.displayWallet);
     }
 
-    _displayButton = () =>{
-        
-        return(
-            <TouchableHighlight onPress={()=>{this._toggleSendCrypto1();this._toggleSendCrypto2()}} style={localStyles.bigButton}>
-                <Text style={localStyles.bigButtonText}>Next</Text>
-            </TouchableHighlight>
-        )
+    _getUSDConversion = () => {
+        let api = "https://api.coinmarketcap.com/v1/ticker/"
+        if (this.state.selectedCrypto === "HERC") {
+            hercApi = api + "hercules/"
+            console.log("####"+hercApi)
+            fetch(hercApi).then((response) => response.json())
+                .then((responseJson) => {
+                    this.setState({USDAmount:(responseJson[0].price_usd*this.state.sendAmount).toFixed(2)})
+                });
+
+        } else if (this.state.selectedCrypto === "ETH") {
+            ethApi = api + "ethereum/"
+            fetch(ethApi).then((response) => response.json())
+                .then((responseJson) => {
+                    this.setState({USDAmount:(responseJson[0].price_usd*this.state.sendAmount).toFixed(2)})
+                });
+        }
     }
+
 
 
 
@@ -297,15 +338,13 @@ class Wallet extends React.Component {
                             <View style={localStyles.balanceInnerLeftContainer}>
                                 <Text style={localStyles.balanceLabelText}>Your Balance</Text>
                                 <View style={{ flexDirection: "row", alignItems: "center", }}>
-                                    <Text style={localStyles.balanceText}>{currencyValue} </Text>
-                                    {this.state.displayWallet === "HERC" ? <Image style={localStyles.icon} source={hercCoin} /> : <Icon name="ethereum" size={26} />}
+                                    <Text style={localStyles.balanceText}>{currencyValue}   </Text>
+                                    {this.state.displayWallet === "HERC" ? <Image style={localStyles.mediumIcon} source={hercCoin} /> : <Icon name="ethereum" size={24} />}
                                 </View>
                             </View>
-                            <View style={{ flex: 1 }}></View>
                             <View style={localStyles.balanceInnerRightContainer}>
                                 <Text style={[localStyles.balanceLabelText, { alignSelf: "center" }]}>Choose</Text>
                                 <TouchableHighlight onPress={() => { this._changeCurrency() }}>
-
                                     {this._displayChangeCurreny()}
                                 </TouchableHighlight>
                             </View>
@@ -315,7 +354,10 @@ class Wallet extends React.Component {
 
                 <View style={localStyles.activityContainer}>
                     <Text>Activity</Text>
-                    {typeof this.state.transactions !== 'undefined' ? this.state.transactions.map((transaction,index) => (this._displayActivity(transaction,index))) : null}
+                    <ScrollView>
+                        {typeof this.state.transactions !== 'undefined' ? this.state.transactions.map((transaction, index) => (this._displayActivity(transaction, index))) : null}
+
+                    </ScrollView>
                 </View>
                 <View style={localStyles.actionsContainer}>
                     <TouchableHighlight style={[localStyles.actionButton, { backgroundColor: "#95c260" }]}
@@ -330,39 +372,49 @@ class Wallet extends React.Component {
 
                 <Modal
                     isVisible={this.state.sendCrypto1ModalVisible}
-                    onBackButtonPress={this._toggleSendCrypto1}
-                    onBackdropPress={this._toggleSendCrypto1}
+                    onBackButtonPress={() => { this._toggleSendCrypto1(); this._resetSendState() }}
+                    onBackdropPress={() => { this._toggleSendCrypto1(); this._resetSendState() }}
                     style={{ margin: 0 }}
                 >
 
                     <View style={modalStyles.modalLower}>
-                        <View style={modalStyles.sendCryptoContainer}>
-                            <Text style={modalStyles.menuTitle}>Send Cryptocurrency</Text>
-                            <Text style={modalStyles.menuSubtitle}>Choose Cryptocurrency</Text>
+                        <View style={[modalStyles.sendCryptoContainer,{height:this.state.windowHeight*0.4}]}>
+                            <View style={modalStyles.modalHeadingContainer}>
+
+                                <View style={modalStyles.modalHeading}>
+
+                                    <Text style={modalStyles.menuTitle}>Send Cryptocurrency</Text>
+                                    <Text style={modalStyles.menuSubtitle}>Choose Cryptocurrency</Text>
+                                </View>
+
+
+                            </View>
 
                             <View style={modalStyles.send1LowerContainer}>
-                <View style={modalStyles.sourceIconContainer}>
-                    <TouchableHighlight onPress={() => this._selectCrypto("HERC")} >
-                        <View style={[modalStyles.cryptoIconContainer, this.state.selectedCrypto === "HERC" ? modalStyles.selectedCryptoIconBackground : modalStyles.unselectedCryptoIconBackground]}>
-                            <Image style={localStyles.icon} source={hercCoin} />
+                                <View style={modalStyles.selectCryptoIconContainer}>
+                                    <TouchableHighlight onPress={() => this._selectCrypto("HERC")} >
+                                        <View style={[modalStyles.cryptoIconContainer, this.state.selectedCrypto === "HERC" ? modalStyles.selectedCryptoIconBackground : modalStyles.unselectedCryptoIconBackground]}>
+                                            <Image style={localStyles.bigIcon} source={hercCoin} />
 
-                        </View>
-                    </TouchableHighlight>
-                    <Text style={[modalStyles.cryptoText, this.state.selectedCrypto === "HERC" ? modalStyles.selectedCryptoTextColor : modalStyles.unselectedCryptoTextColor]}>HERC</Text>
-                </View>
+                                        </View>
+                                    </TouchableHighlight>
+                                    <Text style={[modalStyles.cryptoText, this.state.selectedCrypto === "HERC" ? modalStyles.selectedCryptoTextColor : modalStyles.unselectedCryptoTextColor]}>HERC</Text>
+                                </View>
 
-                <View style={modalStyles.sourceIconContainer}>
-                    <TouchableHighlight onPress={() => this._selectCrypto("ETH")}>
-                        <View style={[modalStyles.cryptoIconContainer, this.state.selectedCrypto === "ETH" ? modalStyles.selectedCryptoIconBackground : modalStyles.unselectedCryptoIconBackground]}>
-                            <Icon name="ethereum" size={26} />
-                        </View>
-                    </TouchableHighlight>
-                    <Text style={[modalStyles.cryptoText, this.state.selectedCrypto === "ETH" ? modalStyles.selectedCryptoTextColor : modalStyles.unselectedCryptoTextColor]}>ETH</Text>
-                </View>
+                                <View style={modalStyles.selectCryptoIconContainer}>
+                                    <TouchableHighlight onPress={() => this._selectCrypto("ETH")}>
+                                        <View style={[modalStyles.cryptoIconContainer, this.state.selectedCrypto === "ETH" ? modalStyles.selectedCryptoIconBackground : modalStyles.unselectedCryptoIconBackground]}>
+                                            <Icon name="ethereum" size={48} />
+                                        </View>
+                                    </TouchableHighlight>
+                                    <Text style={[modalStyles.cryptoText, this.state.selectedCrypto === "ETH" ? modalStyles.selectedCryptoTextColor : modalStyles.unselectedCryptoTextColor]}>ETH</Text>
+                                </View>
 
-            </View>
-                           
-                           {this._displayButton()}
+                            </View>
+
+                            <TouchableHighlight onPress={() => { this._toggleSendCrypto1(); this._toggleSendCrypto2() }} style={localStyles.nextButton}>
+                                <Text style={localStyles.bigButtonText}>Next</Text>
+                            </TouchableHighlight>
                         </View>
                     </View>
                 </Modal>
@@ -370,25 +422,77 @@ class Wallet extends React.Component {
 
                 <Modal
                     isVisible={this.state.sendCrypto2ModalVisible}
-                    onBackButtonPress={()=>{this._toggleSendCrypto2();this._toggleSendCrypto1()}}
-                    onBackdropPress={this._toggleSendCrypto2}
+                    onBackButtonPress={() => { this._toggleSendCrypto2(); this._toggleSendCrypto1(); }}
+                    onBackdropPress={() => { this._toggleSendCrypto2(); this._resetSendState() }}
                     style={{ margin: 0 }}
+
                 >
+                    <Modal isVisible={this.state.QRModalVisible}
+                        onBackButtonPress={this._toggleQRModal} onBackdropPress={this._toggleQRModal}
+                    >
+                        <View style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "50%", justifyContent: "center", alignItems: "center" }}>
+                            <View style={{ flexDirection: "row", width: "90%" }}>
+                                <TouchableHighlight onPress={this._toggleQRModal} style={{ justifyContent: "center", }}>
+                                    <Icon name="arrow-left" size={26} />
+                                </TouchableHighlight>
+                                <View style={{ flex: 1, alignItems: "center", justifyContent: "space-evenly" }}>
+
+                                    <Text style={modalStyles.menuTitle}>Scan QR</Text>
+
+                                </View>
+                                <TouchableHighlight style={{ justifyContent: "center", }}>
+                                    <Icon name="arrow-right" size={26} color="#ffffff" />
+                                </TouchableHighlight>
+
+                            </View>
+                            <RNCamera
+                                barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
+                                flashMode={RNCamera.Constants.FlashMode.on}
+                                style={{ width: "90%", height: "80%", borderRadius: 10 }}
+                                onBarCodeRead={this._handleBarCodeRead}
+                                ref={cam => (this.camera = cam)}
+                            >
+                            </RNCamera>
+                        </View>
+
+                    </Modal>
 
                     <View style={modalStyles.modalLower}>
-                        <View style={modalStyles.sendCryptoContainer}>
-                            <Text style={modalStyles.menuTitle}>Send Cryptocurrency</Text>
-                            <Text style={modalStyles.menuSubtitle}>Choose Cryptocurrency</Text>
+                        <View style={[modalStyles.sendCryptoContainer,{height:this.state.windowHeight*0.4}]}>
+
+                            <View style={modalStyles.modalHeadingContainer}>
+                                <TouchableHighlight onPress={() => { this._toggleSendCrypto2(); this._toggleSendCrypto1() }} style={{ justifyContent: "center", }}>
+                                    <Icon name="arrow-left" size={26} />
+                                </TouchableHighlight>
+                                <View style={modalStyles.modalHeading}>
+
+                                    <Text style={modalStyles.menuTitle}>Send Cryptocurrency</Text>
+                                    <Text style={modalStyles.menuSubtitle}>Choose Cryptocurrency</Text>
+                                </View>
+                                <TouchableHighlight style={{ justifyContent: "center", }}>
+                                    <Icon name="arrow-right" size={26} color="#ffffff" />
+                                </TouchableHighlight>
+
+                            </View>
 
                             <View style={modalStyles.send2LowerContainer}>
-                    <TextInput style={localStyles.textInput} underlineColorAndroid="transparent" placeholder="Destination">
-                    </TextInput>
-                    <TextInput style={localStyles.textInput} underlineColorAndroid="transparent" placeholder="Amount">
+                                <View style={[localStyles.textInput, { flexDirection: "row", justifyContent: "center", alignItems: "center" }]}>
+                                    <TextInput onChangeText={(text) => { this.setState({ sendDestination: text }) }} style={{ flex: 1, alignSelf: "flex-start", paddingHorizontal: 10 }}
+                                        underlineColorAndroid="transparent" placeholder="Destination" defaultValue={this.state.sendDestination} />
+                                    <TouchableHighlight onPress={this._toggleQRModal}>
+                                        <Icon name="qrcode-scan" size={20} style={{ paddingHorizontal: 10 }} />
+                                    </TouchableHighlight>
+                                </View>
 
-                    </TextInput>
-                </View>
-                           
-                           {this._displayButton()}
+                                <View style={[localStyles.textInput, { flexDirection: "row", justifyContent: "center", alignItems: "center" }]}>
+                                    <TextInput onChangeText={(text) => { this.setState({ sendAmount: text }) }} style={{ flex: 1, alignSelf: "flex-start", paddingHorizontal: 10 }}
+                                        underlineColorAndroid="transparent" placeholder="Amount" defaultValue={this.state.sendAmount} />
+                                </View>
+                            </View>
+
+                            <TouchableHighlight onPress={() => { this._toggleSendCrypto2(); this._toggleSendCrypto3();this._getUSDConversion(); }} style={localStyles.nextButton}>
+                                <Text style={localStyles.bigButtonText}>Next</Text>
+                            </TouchableHighlight>
                         </View>
                     </View>
                 </Modal>
@@ -396,45 +500,64 @@ class Wallet extends React.Component {
 
                 <Modal
                     isVisible={this.state.sendCrypto3ModalVisible}
-                    onBackButtonPress={()=>{this._toggleSendCrypto3();this._toggleSendCrypto2()}}
-                    onBackdropPress={this._toggleSendCrypto3}
+                    onBackButtonPress={() => { this._toggleSendCrypto3(); this._toggleSendCrypto2() }}
+                    onBackdropPress={() => { this._toggleSendCrypto3(); this._resetSendState() }}
                     style={{ margin: 0 }}
                 >
 
                     <View style={modalStyles.modalLower}>
-                        <View style={modalStyles.sendCryptoContainer}>
-                            <Text style={modalStyles.menuTitle}>Send Cryptocurrency</Text>
-                            <Text style={modalStyles.menuSubtitle}>Confirmation</Text>
+                        <View style={[modalStyles.sendCryptoContainer,{height:this.state.windowHeight*0.4}]}>
 
-                            <View style={modalStyles.send2LowerContainer}>
-                            <View>
-                                <Text>Address</Text>
-                                <Text>Address</Text>
-                            </View>
+                            <View style={modalStyles.modalHeadingContainer}>
+                                <TouchableHighlight onPress={() => { this._toggleSendCrypto3(); this._toggleSendCrypto2() }} style={{ justifyContent: "center", }}>
+                                    <Icon name="arrow-left" size={26} />
+                                </TouchableHighlight>
+                                <View style={modalStyles.modalHeading}>
 
-                            <View style={{flexDirection:"row"}}>
-                            <View>
-                                <Text>Amount</Text>
-                                <Text>500</Text>
-
-                            </View>
-                            <View>
-                                <Text>Cryptocurrency</Text>
-                                <Text>{this.state.selectedCrypto}</Text>
-
-                            </View>
-                            <View>
-                                <Text>US Dollars</Text>
-                                <Text>500</Text>
+                                    <Text style={modalStyles.menuTitle}>Send Cryptocurrency</Text>
+                                    <Text style={modalStyles.menuSubtitle}>Choose Cryptocurrency</Text>
+                                </View>
+                                <TouchableHighlight style={{ justifyContent: "center", }}>
+                                    <Icon name="arrow-right" size={26} color="#ffffff" />
+                                </TouchableHighlight>
 
                             </View>
 
+                            <View style={modalStyles.send3LowerContainer}>
+                                <View style={{ justifyContent: "flex-start", width: "90%" }}>
+                                    <Text>Address</Text>
+                                    <Text style={{ fontSize: 16, color: "#f4c736", fontWeight: "bold" }}>{this.state.sendDestination}</Text>
+                                </View>
+
+                                <View style={{ flexDirection: "row", justifyContent: "space-between", width: "90%" }}>
+                                    <View>
+                                        <Text style={modalStyles.smallGrayText}>Amount</Text>
+                                        <Text>{this.state.sendAmount}</Text>
+
+                                    </View>
+                                    <View>
+                                        <Text style={modalStyles.smallGrayText}>Cryptocurrency</Text>
+
+                                        <View style={{ flexDirection: "row" }}>
+                                            {this.state.selectedCrypto === "HERC" ? <Image style={localStyles.smallIcon} source={hercCoin} /> : <Icon name="ethereum" size={16} />}
+                                            <Text>{this.state.selectedCrypto}</Text>
+                                        </View>
+                                    </View>
+                                    <View>
+                                        <Text style={modalStyles.smallGrayText}>US Dollars</Text>
+                                        <Text>{this.state.USDAmount}</Text>
+
+                                    </View>
+
+                                </View>
                             </View>
-                </View>
-                           
-                           {this._displayButton()}
+
+                            <TouchableHighlight onPress={this._onPressSend} style={localStyles.sendButton}>
+                                <Text style={localStyles.bigButtonText}>Send</Text>
+                            </TouchableHighlight>
                         </View>
                     </View>
+                    <CustomModal isVisible={this.state.errorModalVisible} modalCase="error" content="Something went wrong." dismissRejectText="Try again" closeModal={this._toggleErrorModal} />
                 </Modal>
                 <Modal
                     isVisible={this.state.receiveModalVisible}
@@ -444,12 +567,13 @@ class Wallet extends React.Component {
                 >
 
                     <View style={modalStyles.modalLower}>
-                        <View style={modalStyles.receiveContainer}>
+                        <View style={[modalStyles.receiveContainer,{height:this.state.windowHeight*0.4}]}>
                             <Text style={modalStyles.menuTitle}>Receive Cryptocurrency</Text>
-                            <QRCode size={200} value={this.props.ethereumAddress} />
+
+                            <QRCode size={180} value={this.props.ethereumAddress} />
+
                             <View style={{ justifyContent: "center", alignItems: "center" }}>
                                 <Text style={modalStyles.menuSubtitle}>Hold to copy wallet address</Text>
-                                <View style={modalStyles.addressContainer}></View>
                                 <TouchableHighlight onPress={() => { this.writeToClipboard(this.props.ethereumAddress); }}>
                                     <View style={modalStyles.addressContainer} >
                                         <Text>Address</Text>
@@ -461,9 +585,11 @@ class Wallet extends React.Component {
 
                         </View>
                     </View>
+
+
                 </Modal>
-                <CustomModal isVisible={false} modalCase="complete" content="HERC has been sent successfully." dismissAcceptText="Continue" closeModal={() => { }} />
-                <CustomModal isVisible={false} modalCase="error" content="Something went wrong." dismissRejectText="Try again" closeModal={() => { }} />
+                <CustomModal isVisible={this.state.successModalVisible} modalCase="complete" content="HERC has been sent successfully." dismissAcceptText="Continue" closeModal={this._toggleSuccessModal} />
+
             </View>
 
         );
@@ -551,7 +677,7 @@ const localStyles = StyleSheet.create({
         flexDirection: "row",
         paddingVertical: 5,
         paddingHorizontal: 10,
-        alignItems:"center",
+        alignItems: "center",
     },
 
     changeCurrencyText: {
@@ -560,13 +686,23 @@ const localStyles = StyleSheet.create({
     },
 
 
-    icon: {
-        height: 26,
-        width: 26,
-        borderRadius: 26 / 2,
+    bigIcon: {
+        height: 48,
+        width: 48,
+        borderRadius: 48 / 2,
         resizeMode: "contain",
         alignSelf: "center"
     },
+
+
+    mediumIcon: {
+        height: 24,
+        width: 24,
+        borderRadius: 24 / 2,
+        resizeMode: "contain",
+        alignSelf: "center"
+    },
+
 
     smallIcon: {
         height: 16,
@@ -613,9 +749,6 @@ const localStyles = StyleSheet.create({
         margin: 5,
         fontFamily: "dinPro"
     },
-    flipIcon: {
-        transform: [{ rotate: '270deg' }]
-    },
     displayFlex: {
         display: "flex"
     },
@@ -623,38 +756,48 @@ const localStyles = StyleSheet.create({
         display: "none"
     },
     displayActivityContainer: {
-        flexDirection: "row", 
+        flexDirection: "row",
         alignItems: "center",
-        justifyContent: "space-evenly", 
-        borderRadius: 5, 
-        marginTop: 5, 
-        padding:10
+        justifyContent: "space-evenly",
+        borderRadius: 5,
+        marginTop: 5,
+        padding: 10
     },
-    displayActivityContainerBG1:{
-        backgroundColor: "#f2f3fb", 
+    displayActivityContainerBG1: {
+        backgroundColor: "#f2f3fb",
     },
-    displayActivityContainerBG2:{
-        backgroundColor: "#ffffff", 
+    displayActivityContainerBG2: {
+        backgroundColor: "#ffffff",
     },
-    bigButton:{
-        margin:5,
-        backgroundColor:"#f4c736",
-        justifyContent:"center",
-        alignItems:"center",
-        height:"15%",
-        width:"90%",
-        borderRadius:5
+    nextButton: {
+        margin: 5,
+        backgroundColor: "#f4c736",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "15%",
+        width: "90%",
+        borderRadius: 5
     },
-    bigButtonText:{
-        color:"#ffffff",
-        fontSize:16
+    bigButtonText: {
+        color: "#ffffff",
+        fontSize: 16
     },
-    textInput:{
-        borderRadius:5,
-        backgroundColor: "#f2f3fb", 
-        width:"90%"
-    }
-    
+    textInput: {
+        borderRadius: 5,
+        backgroundColor: "#f2f3fb",
+        width: "90%"
+    },
+    sendButton: {
+        margin: 5,
+        backgroundColor: "#95c260",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "15%",
+        width: "90%",
+        borderRadius: 5
+    },
+
+
 
 
 });
@@ -669,17 +812,25 @@ const modalStyles = StyleSheet.create({
     },
 
     send1LowerContainer: {
-        height:"50%",
+        height: "50%",
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'space-evenly',
         flexDirection: 'row',
         backgroundColor: "#ffffff",
     },
     send2LowerContainer: {
-        width:"100%",
-        height:"50%",
+        width: "100%",
+        height: "50%",
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'space-evenly',
+        flexDirection: 'column',
+        backgroundColor: "#ffffff",
+    },
+    send3LowerContainer: {
+        width: "90%",
+        height: "50%",
+        alignItems: 'center',
+        justifyContent: 'space-evenly',
         flexDirection: 'column',
         backgroundColor: "#ffffff",
     },
@@ -690,23 +841,31 @@ const modalStyles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-evenly',
         width: '100%',
-        height: '40%',
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
     },
-    sourceIconContainer: {
-        height: '50%',
-        width: '30%',
+    receiveContainer: {
+        flexDirection: 'column',
+        backgroundColor: "#ffffff",
+        alignItems: 'center',
+        justifyContent: 'space-evenly',
+        width: '100%',
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+
+    },
+    selectCryptoIconContainer: {
         alignItems: 'center',
         flexDirection: 'column',
         justifyContent: 'space-between',
         backgroundColor: "#ffffff",
+        justifyContent: "center"
     },
     cryptoIconContainer: {
-        padding: 10,
-        borderRadius: 23,
-        justifyContent: "center",
-        alignItems: "center"
+        padding: "10%",
+        borderRadius: 50,
+        justifyContent: "flex-start",
+        alignItems: "baseline",
     },
     selectedCryptoIconBackground: {
         backgroundColor: "#95c260"
@@ -728,25 +887,15 @@ const modalStyles = StyleSheet.create({
     menuTitle: {
         color: "#000000",
         fontSize: 24,
-        margin: 10,
+        margin: 4,
     },
     menuSubtitle: {
         color: "#9398b2",
         fontSize: 16,
-        margin: 5,
+        margin: 2,
     },
 
-    receiveContainer: {
-        flexDirection: 'column',
-        backgroundColor: "#ffffff",
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        width: '100%',
-        height: '50%',
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10,
-        paddingVertical: 10
-    },
+
     addressContainer: {
         backgroundColor: "#f2f3fb",
         width: "90%",
@@ -757,8 +906,23 @@ const modalStyles = StyleSheet.create({
     },
     addressText: {
         fontWeight: "bold",
-        fontSize: 16
+        fontSize: 16,
+        textAlign: "center"
     },
+
+    modalHeading: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "space-evenly"
+    },
+    modalHeadingContainer: {
+        flexDirection: "row",
+        width: "90%"
+    },
+    smallGrayText: {
+        fontSize: 12,
+        color: "#9398b2"
+    }
 
 
 })
