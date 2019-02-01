@@ -4,7 +4,8 @@ import {
   StyleSheet,
   Text,
   Image,
-  View
+  View,
+  PermissionsAndroid
 } from 'react-native';
 import React, { Component } from 'react';
 // import { LoginScreen } from 'edge-login-ui-rn';
@@ -19,7 +20,6 @@ import { WEB_SERVER_API_TOKEN, WEB_SERVER_API_LATEST_APK } from "../components/s
 import { makeEdgeContext } from 'edge-core-js';
 import { EDGE_API_KEY } from '../components/settings.js'
 import firebase from "../constants/Firebase";
-
 
 class Login extends Component {
   static navigationOptions = {
@@ -46,6 +46,8 @@ class Login extends Component {
     this.setState({ context })
   })
 }
+
+
 
   onLogin = async (error = null, account) => {
     let tokenHerc = {
