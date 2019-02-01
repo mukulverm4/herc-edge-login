@@ -161,19 +161,24 @@ class SupplyChainTransactionReview extends Component {
 
   _sendTrans() {
     let totalBN = new BigNumber(this._getDocPrice()).plus(this._getImgPrice()).plus(this._getNetworkFee()).toFixed(18);
-
-    // console.log(docPrice, imgPrice, networkFee, total, "chance price check on send trans");
     console.log(totalBN, "chance price check on send trans")
     // let convertingTotal = new BigNumber(total)
     // let newTotal = convertingTotal.toFixed(6)
-    this.props.sendTrans(totalBN);
+
+    /*
+    send docImgFeePrepped and networkFeePrepped in string
+    */
+    let docImgFeePrepped = new BigNumber(this._getDocPrice()).plus(this._getImgPrice()).multipliedBy(1000000000000000000).toFixed(0);
+    let networkFeePrepped = new BigNumber(this._getNetworkFee()).multipliedBy(1000000000000000000).toFixed(0);
+    let sendTransObj = {totalBN: totalBN, dataFee: docImgFeePrepped.toString(), networkFee: networkFeePrepped.toString()}
+    this.props.sendTrans(sendTransObj);
   }
 
+  /*
   async _triggerPayment() {
     console.log("jm will payment start now? ", this.props.transDataFlags.confTransComplete)
     let docImgFeePrepped = new BigNumber(this._getDocPrice()).plus(this._getImgPrice()).multipliedBy(1000000000000000000).toFixed(0);
     let networkFeePrepped = new BigNumber(this._getNetworkFee()).multipliedBy(1000000000000000000).toFixed(0);
-    console.log("jm infinite my ass", networkFeePrepped.toString(), docImgFeePrepped.toString())
 
     const burnSpendInfo = {
       networkFeeOption: "standard",
@@ -223,7 +228,8 @@ class SupplyChainTransactionReview extends Component {
 
       if (burnTransaction.txid && dataFeeTransaction.txid) {
         console.log("jm burnTransaction.txid && dataFeeTransaction.txid", burnTransaction.txid, dataFeeTransaction.txid)
-        this.setState({ madePayment: true }, () => { this.props.storeTransactionIds({burnTransaction: burnTransaction.txid, dataFeeTransaction: dataFeeTransaction.txid })})
+        this.props.storeTransactionIds({burnTransaction: burnTransaction.txid, dataFeeTransaction: dataFeeTransaction.txid})
+        this.setState({ madePayment: true })
       }
     } catch (e) {
       let tempBalance = new BigNumber(this.props.watchBalance["ETH"]);
@@ -237,6 +243,7 @@ class SupplyChainTransactionReview extends Component {
       );
     }
   }
+  */
 
   _getNetworkFee = () => {
     //Security Fee should be $ 0.000032 worth of hercs. The response should be in hercs.
@@ -407,11 +414,11 @@ class SupplyChainTransactionReview extends Component {
       );
     }
 
-    if (this.props.transDataFlags.confTransComplete && this.state.madePayment === false) {
+    // if (this.props.transDataFlags.confTransComplete && this.state.madePayment === false) {
       // Warning: do not remove "this.state.madePayment === false"
       // or you will create an infinite loop of charges.
-      this._triggerPayment()
-    }
+      // this._triggerPayment()
+    // }
     /// I'm using a smaller location image locally. localStyles.assetLocationLabel
     return (
       <View style={localStyles.SupplyChainTransactionReviewContainer}>
