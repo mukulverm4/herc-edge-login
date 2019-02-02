@@ -215,6 +215,10 @@ class NewAssetForm extends Component {
             <View style={localStyles.assetMetricInputField}>
               <Text style={localStyles.text}>Asset Name</Text>
               <TextInput
+                autoFocus={true}
+                returnKeyType = { "next" }
+                onSubmitEditing={() => {  this.asssetPasswordInput.focus() }}
+                blurOnSubmit={false}
                 autoCorrect={false}
                 spellCheck={false}
                 underlineColorAndroid='transparent'
@@ -227,6 +231,10 @@ class NewAssetForm extends Component {
             <View style={localStyles.assetMetricInputField}>
               <Text style={localStyles.text}>Asset Password</Text>
               <TextInput
+                ref={(input) => { this.asssetPasswordInput = input; }}
+                returnKeyType = { "next" }
+                onSubmitEditing={() => {  this.metric1.focus() }}
+                blurOnSubmit={false}
                 autoCorrect={false}
                 spellCheck={false}
                 underlineColorAndroid='transparent'
@@ -239,6 +247,8 @@ class NewAssetForm extends Component {
             <View style={localStyles.assetMetricInputField}>
               <Text style={localStyles.text}>Metric 1</Text>
               <TextInput
+                ref={(input) => { this.metric1 = input; }}
+                blurOnSubmit={false}
                 autoCorrect={false}
                 spellCheck={false}
                 underlineColorAndroid='transparent'

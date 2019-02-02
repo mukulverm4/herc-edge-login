@@ -40,14 +40,14 @@ class NewAssetConfirm extends Component {
         }
     }
 
-    componentDidMount() {
+    componentWillMount() {
         try {
           let balance = new BigNumber(this.props.watchBalance["HERC"])
-          this.setState({ balance: balance.times(1e-18).toFixed(6) })
+          this.setState({ balance: balance.times(1e-18).toFixed(6) }, () => {console.log("jm try balance",this.state.balance)})
         } catch(e) {
           if (this.props.wallet.balances['HERC']) {
             let balance =  new BigNumber(this.props.wallet.balances['HERC'])
-            this.setState({ balance: balance.times(1e-18).toFixed(6) })
+            this.setState({ balance: balance.times(1e-18).toFixed(6) }, () => {console.log("jm catch balance",this.state.balance)})
           }
           else {
             let balance =  new BigNumber('0')
@@ -189,10 +189,9 @@ class NewAssetConfirm extends Component {
 
 
     _onPressSubmit() {
-
         Alert.alert(
           'Minimum Balance Requirement: 1000 HERC',
-          'Current Balance: \n'+ this.state.balance+ ' HERC \nDo you wish to check if your balance meets the minimum requirement?' ,
+          'Current Balance: \n'+ this.state.balance + ' HERC \nDo you wish to check if your balance meets the minimum requirement?' ,
           [
             {text: 'No', onPress: () => console.log('No Pressed'), style: 'cancel'},
             {text: 'Yes', onPress: () => {this._checkBalance()} },
