@@ -18,7 +18,7 @@ class NewAssetConfirm extends Component {
             modalVisible: false,
             loading: false,
             confirmComplete: false,
-            balance: '',
+            balance: 'madeupBalance',
             transactionId: null
         }
     }
@@ -153,6 +153,8 @@ class NewAssetConfirm extends Component {
         console.log("You are a developer. jm")
         this._sendNewAsset()
       } else {
+        console.log("jm checkbalance()", this.state.balance)
+        debugger;
         // this is a non-developer
         console.log("You are NOT a developer. jm")
         let price = new BigNumber(1000)
@@ -215,7 +217,6 @@ class NewAssetConfirm extends Component {
         let Name = newAsset.Name;
         let password = this.props.newAsset.Password
 
-        console.log(newAsset, "newAsset, look at Logo")
         if (newAsset.Logo) {
             Logo = (<Image style={styles.assetHeaderImage} source={{ uri: newAsset.Logo.uri }} />);
         } else {

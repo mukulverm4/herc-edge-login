@@ -94,7 +94,6 @@ export function getAssets(userName) {
     let assetLabels = [];
     assetRef.once("value")
       .then(snapshot => {
-        console.log(snapshot.val(), " getAssets Action: what's in the database?")
         snapshot.forEach(asset => {
           assetLabels.push(
             asset.toJSON()
@@ -110,7 +109,6 @@ export function getAssets(userName) {
 
 
 function gotListAssets(assetList) {
-  console.log("gotListAssetsAction", assetList)
   return (
     {
       type: GOT_LIST_ASSETS,

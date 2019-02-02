@@ -100,7 +100,6 @@ class SupplyChainReview extends Component {
     let logo = this.props.logo;
     let asset = this.props.transHeader;
     let hercId = this.props.hercId;
-
     return (
       <View style={styles.container}>
         <View style={styles.containerCenter}>

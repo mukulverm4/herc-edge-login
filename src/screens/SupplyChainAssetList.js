@@ -93,8 +93,6 @@ class SupplyChainAssetList extends Component {
   componentDidMount() {
     StatusBar.setBackgroundColor("white");
     StatusBar.setBarStyle("dark-content", true);
-    console.log(this.props.assets, "Supply Chain: Asset Headers From Firebase")
-
   }
 
   _renderAssets = () => {
