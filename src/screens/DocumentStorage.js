@@ -20,7 +20,6 @@ import {
 import firebase from "firebase";
 import Firebase from "../constants/Firebase";
 import hercLogo from "../assets/hercLogoBreak.png";
-import { __await } from "tslib";
 import {
   DocumentPicker,
   DocumentPickerUtil
