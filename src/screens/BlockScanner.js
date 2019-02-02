@@ -31,11 +31,13 @@ class BlockScanner extends Component {
       totalSupply: null,
       holdersCount: null,
       txnArr: [],
-      transactionsLoaded: false
+      transactionsLoaded: false,
+      ethAddr: this.props.ethereumAddress
     };
   }
 
   componentDidMount = async () => {
+    console.log(this.props.ethereumAddress, "*** props ***")
     await this._justDoIt();
     await this._getMarketCapTotalSupply();
     await this._getHoldersCount();
@@ -74,13 +76,16 @@ class BlockScanner extends Component {
   };
 
   _getTxList_txQuantity = async () => {
+    let ethAddr = this.state.ethAddr;
+
     return axios
-      .get(
-        "https://api.etherscan.io/api?module=account&action=txlist&address=0x6251583e7d997df3604bc73b9779196e94a090ce&startblock=0&endblock=99999999&sort=asc&apikey=Z4A2NZUA58J7CJCEEE87872SCC82BI88W1"
+      .get("https://api.etherscan.io/api?module=account&action=txlist&address=" + ethAddr + "&startblock=0&endblock=99999999&sort=asc&apikey=Z4A2NZUA58J7CJCEEE87872SCC82BI88W1"
       )
       .then(response => {
         let responseObject = response.data;
+        console.log(responseObject, "response object line 85")
         let txQuantity = responseObject.result.length;
+        console.log(txQuantity, "tx quantity ***")
         let txList = responseObject.result;
         let lastTransaction = responseObject.result[txQuantity - 1];
         let lastBlock = lastTransaction.blockNumber;
@@ -104,6 +109,7 @@ class BlockScanner extends Component {
             "http://api.ethplorer.io/getTxInfo/" + curHash + "?apiKey=freekey"
           )
           .then(res => {
+            console.log(res, "res line 110")
             let nice = res.data.operations[0];
             let height = res.data.blockNumber;
             let value = nice.value;
@@ -125,6 +131,7 @@ class BlockScanner extends Component {
   _justDoIt = async () => {
     await this._getTxList_txQuantity()
       .then(hashes => {
+        console.log(hashes, "hashes")
         this._getTransactionData(hashes);
       })
       .then(res => console.log(res))
@@ -376,7 +383,7 @@ class BlockScanner extends Component {
                 }}
               >
                 <Text style={{ fontSize: 12, marginRight: 5, color: "white" }}>
-                  0x6251583e7d997df3604bc73b9779196e94a090ce
+                {this.props.ethereumAddress}
                 </Text>
                 {contentCopyIcon}
               </View>
@@ -713,6 +720,7 @@ class BlockScanner extends Component {
 }
 
 const mapStateToProps = state => ({
+  ethereumAddress: state.WalletActReducers.ethereumAddress,
   data: state.Web3Reducers.data,
   isFetching: state.Web3Reducers.isFetching,
   isFetched: state.Web3Reducers.isFetched
