@@ -90,7 +90,6 @@ const AssetReducers = (state = INITIAL_STATE, action) => {
         })
 
         case GOT_LIST_ASSETS:
-            console.log(action, " GOT_LIST_ASSETS Action")
             let assetLabels = action.assets;
             return Object.assign({}, state, {
                 ...state,
@@ -104,9 +103,6 @@ const AssetReducers = (state = INITIAL_STATE, action) => {
                 }
             }
         case GOT_ASSET_DEF:
-
-            console.log(action, "action in GOT_ASSET_DEF REDUCER")
-
             return Object.assign({}, state, {
                 ...state,
                 dataFlags: {
@@ -138,7 +134,6 @@ const AssetReducers = (state = INITIAL_STATE, action) => {
 
         case GOT_HERC_ID:
             let hercId = action.hercId;
-            console.log(hercId, action, "herc id stuff")
             return Object.assign({}, state, {
                 ...state,
                 hercId
@@ -146,7 +141,6 @@ const AssetReducers = (state = INITIAL_STATE, action) => {
 
         case INC_HERC_ID:
             let hercID = action.hercIdplus1;
-            console.log(hercID, "in increase reducer");
             rootRef.child("hercID").set(hercID);
             return Object.assign({}, state, {
                 ...state,
@@ -155,7 +149,6 @@ const AssetReducers = (state = INITIAL_STATE, action) => {
 
         case START_TRANS:
             let trans = action.data;
-            console.log(state.selectedAsset.Name, "selectedAssetName in START_TRANS reducer")
 
             return Object.assign({}, state, {
                 ...state,
@@ -197,7 +190,6 @@ const AssetReducers = (state = INITIAL_STATE, action) => {
                 size: action.size,
                 uri: action.uri
             };
-            console.log('adding photo');
 
             // let images = [...state.selectedAsset.trans.data.images, image];
             return Object.assign({}, state, {
@@ -230,7 +222,6 @@ const AssetReducers = (state = INITIAL_STATE, action) => {
 
         case ADD_METRICS:
             const properties = action.data;
-            console.log(properties, "updating attributes in reducers");
             return Object.assign({}, state, {
                 ...state,
 
@@ -246,7 +237,6 @@ const AssetReducers = (state = INITIAL_STATE, action) => {
 
         case SET_SET:
             const ediT = action.item
-            console.log(ediT, 'setset');
             return Object.assign({}, state, {
                 ...state,
              ...state.trans,
@@ -264,7 +254,6 @@ const AssetReducers = (state = INITIAL_STATE, action) => {
 
         case ADD_ASSET:
             const newAsset = action.newAsset;
-            console.log('Adding Asset: jm ', newAsset.Name)
             return Object.assign({}, state, {
                 ...state,
                 newAsset

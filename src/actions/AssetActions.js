@@ -32,11 +32,13 @@ import {
   CLEAR_STATE,
 } from "./types";
 
+import { storeTransactionIds } from './WalletActActions'
 import axios from 'axios';
 import store from "../store";
 import firebase from "../constants/Firebase";
 const rootRef = firebase.database().ref();
 const assetRef = rootRef.child("assets");
+import { TOKEN_ADDRESS, DEVELOPERS } from "../components/settings";
 
 import {
   WEB_SERVER_API_IPFS_GET,
@@ -85,12 +87,13 @@ export function incHercId(hercid) {
   };
 }
 
+
+
 export function getAssets(userName) {
   return dispatch => {
     let assetLabels = [];
     assetRef.once("value")
       .then(snapshot => {
-        console.log(snapshot.val(), " getAssets Action: what's in the database?")
         snapshot.forEach(asset => {
           assetLabels.push(
             asset.toJSON()
@@ -106,7 +109,6 @@ export function getAssets(userName) {
 
 
 function gotListAssets(assetList) {
-  console.log("gotListAssetsAction", assetList)
   return (
     {
       type: GOT_LIST_ASSETS,
@@ -303,6 +305,7 @@ export function deleteAsset(key) {
   };
 }
 
+
 export function startTrans(trans) {
   let newtrans = trans;
 
@@ -312,8 +315,78 @@ export function startTrans(trans) {
   };
 }
 
-export function sendTrans(transPrice) {
-  // TODO: charge payment. trans = 0.000125
+
+export function makePayment(makePaymentObject) {
+  return async dispatch => {
+    console.log("jm makePaymentObject", makePaymentObject)
+    if (DEVELOPERS.includes(store.getState().WalletActReducers.edge_account)){
+      console.log("You are a developer. jm")
+
+      store.dispatch(storeTransactionIds({burnTransaction: "madeUpBurnTransactionID", dataFeeTransaction: "madeUpdataFeeTransactionID"}));
+      dispatch({type:TRANS_COMPLETE})
+    } else {
+      console.log("You are NOT a developer. jm")
+
+      const burnSpendInfo = {
+        networkFeeOption: "standard",
+        currencyCode: "HERC",
+        metadata: {
+          name: "Transfer From Herc Wallet",
+          category: "Transfer:Wallet:Network Fee"
+        },
+        spendTargets: [
+          {
+            publicAddress: TOKEN_ADDRESS,
+            nativeAmount: makePaymentObject.networkFee
+          }
+        ]
+      };
+      const dataFeeSpendInfo = {
+        networkFeeOption: "standard",
+        currencyCode: "HERC",
+        metadata: {
+          name: "Transfer From Herc Wallet",
+          category: "Transfer:Wallet:Data Fee"
+        },
+        spendTargets: [
+          {
+            publicAddress: "0x1a2a618f83e89efbd9c9c120ab38c1c2ec9c4e76",
+            nativeAmount: makePaymentObject.dataFee
+          }
+        ]
+      };
+      // catch error for "ErrorInsufficientFunds"
+      // catch error for "ErrorInsufficientFundsMoreEth"
+      let wallet = store.getState().WalletActReducers.wallet;
+      try {
+        let burnTransaction = await wallet.makeSpend(burnSpendInfo);
+        await wallet.signTx(burnTransaction);
+        await wallet.broadcastTx(burnTransaction);
+        await wallet.saveTx(burnTransaction);
+        console.log("jm Sent burn transaction with ID = " + burnTransaction.txid);
+
+        let dataFeeTransaction = await wallet.makeSpend(dataFeeSpendInfo);
+        await wallet.signTx(dataFeeTransaction);
+        await wallet.broadcastTx(dataFeeTransaction);
+        await wallet.saveTx(dataFeeTransaction);
+        console.log(
+          "jm Sent dataFee transaction with ID = " + dataFeeTransaction.txid
+        );
+
+        if (burnTransaction.txid && dataFeeTransaction.txid) {
+          store.dispatch(storeTransactionIds({burnTransaction: burnTransaction.txid, dataFeeTransaction: dataFeeTransaction.txid}));
+          dispatch({type:TRANS_COMPLETE})
+
+        }
+      } catch (e) {
+        console.log("jm error", e)
+      }
+    }
+  }
+}
+
+
+export function sendTrans(sendTransObj) {
   return dispatch => {
     dispatch({ type: SEND_TRANS })
 
@@ -324,8 +397,10 @@ export function sendTrans(transPrice) {
     // let transObject = state.AssetReducers.selectedAsset.trans;
     let header = Object.assign({},transObject.header, {
       ...transObject.header,
-      price: transPrice
+      price: sendTransObj.totalBN
     }); //tXlocation, hercId, price, name
+    delete sendTransObj.totalBN
+
 
     let data = transObject.data; //documents, images, properties, dTime
     let keys = Object.keys(data) //[ 'dTime', 'documents', 'images', 'properties' ]
@@ -373,21 +448,14 @@ export function sendTrans(transPrice) {
             var firebaseHeader = Object.assign({}, header, { factomEntry: response.data })
             rootRef.child('assets').child(firebaseHeader.name).child('transactions').child(dTime).set({ data: dataObject, header: firebaseHeader })
             console.log("2/2 ....finished writing to firebase. jm")
-            dispatch({type:TRANS_COMPLETE})
+            console.log("jm mutated sendTransObj", sendTransObj)
+            dispatch(makePayment(sendTransObj))
           })
           .catch(err => { console.log(err) })
       })
       .catch(err => { console.log(err) })
     }
-
-  //   return {
-  //     type: TRANS_COMPLETE,
-  //     data: trans
-  //   };
-  // }
-
 }
-
 
   export function addMetrics(newMetrics) {
     return {

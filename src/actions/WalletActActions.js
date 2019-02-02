@@ -12,6 +12,8 @@ import {
     DELETE_WALLET,
     SWITCH_WALLET,
     ADD_WALLET,
+    STORE_TRANSACTION_IDS,
+    CLEAR_TRANSACTION_STORE
 }
     from './types';
 import store from "../store";
@@ -52,7 +54,7 @@ export function updateBalances(newBalances) {
       newBalances
     };
   }
-  
+
 export function gettingOrganization(organizationName){
   return {
       type: GETTING_ORGANIZATION,
@@ -72,7 +74,6 @@ export function getOrganization() {
 }
 
 export function getWallet(wallet) {
-    console.log("Wallet Object in Actions: ", wallet)
     return {
         type: GET_WALLET,
         wallet
@@ -80,14 +81,12 @@ export function getWallet(wallet) {
 }
 
 export function getBalance() {
-    console.log('getting balance action')
     return {
         type: GET_BALANCE
     }
 }
 
 export function debitTrans(amount) {
-    console.log('debit trans action', amount)
     return {
         type: DEBIT_TRANS,
         hercAmount: amount
@@ -95,7 +94,6 @@ export function debitTrans(amount) {
 }
 
 export function deleteWallet(walletName) {
-    console.log('deleting Wallet action ', walletName)
 
     return {
         type: DELETE_WALLET,
@@ -104,8 +102,21 @@ export function deleteWallet(walletName) {
     }
 }
 
+export function clearTransactionStore() {
+  console.log("jm clearing transaction store.... 1/2")
+  return {
+    type: CLEAR_TRANSACTION_STORE
+  };
+}
+
+export function storeTransactionIds(transactionIds) {
+  return {
+    type: STORE_TRANSACTION_IDS,
+    transactionIds
+  };
+}
+
 export function switchWallet(walletName) {
-    console.log(walletName, 'switchWallet');
     return {
         type: SWITCH_WALLET,
         data: walletName
@@ -113,7 +124,6 @@ export function switchWallet(walletName) {
 }
 
 export function addWallet(walletObject) {
-    console.log('adding Wallet action ', walletObject)
     return {
         type: ADD_WALLET,
         data: walletObject
@@ -123,7 +133,6 @@ export function addWallet(walletObject) {
 
 export function creditTrans(amount) {
   // this action is unlisted
-    console.log('credit trans action', amount)
     return {
         type: CREDIT_TRANS,
         hercAmount: amount

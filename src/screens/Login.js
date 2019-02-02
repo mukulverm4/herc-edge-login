@@ -3,6 +3,7 @@ import {
   Platform,
   StyleSheet,
   Text,
+  Image,
   View,
   PermissionsAndroid
 } from 'react-native';
@@ -12,6 +13,7 @@ import { LoginScreen } from 'herc-edge-login-ui-rn';
 import { YellowBox } from 'react-native';
 import { connect } from "react-redux";
 import axios from 'axios';
+import hercLogoPillar from "../assets/hercLogoPillar.png";
 import { ethereumCurrencyPluginFactory } from 'edge-currency-ethereum';
 import { getUsername, getAccount, authToken, getEthAddress, getWallet, updateBalances } from "../actions/WalletActActions";
 import { WEB_SERVER_API_TOKEN, WEB_SERVER_API_LATEST_APK } from "../components/settings";
@@ -147,7 +149,7 @@ class Login extends Component {
         />
       );
     }
-    return <Text style={styles.welcome}>Loading</Text>;
+    return   <Image source={hercLogoPillar} />;
   };
 
   render() {
