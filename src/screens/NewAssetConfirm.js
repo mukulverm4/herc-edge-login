@@ -43,11 +43,11 @@ class NewAssetConfirm extends Component {
     componentWillMount() {
         try {
           let balance = new BigNumber(this.props.watchBalance["HERC"])
-          this.setState({ balance: balance.times(1e-18).toFixed(6) }, () => {console.log("jm try balance",this.state.balance)})
+          this.setState({ balance: balance.times(1e-18).toFixed(6) })
         } catch(e) {
           if (this.props.wallet.balances['HERC']) {
             let balance =  new BigNumber(this.props.wallet.balances['HERC'])
-            this.setState({ balance: balance.times(1e-18).toFixed(6) }, () => {console.log("jm catch balance",this.state.balance)})
+            this.setState({ balance: balance.times(1e-18).toFixed(6) })
           }
           else {
             let balance =  new BigNumber('0')

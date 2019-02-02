@@ -86,7 +86,7 @@ class TrackAssetList extends Component {
     this.setState({
       showPass: true,
       asset
-    }, () => {console.log('state in TrackAssetList jm', this.state)});
+    })
   };
 
   _onPasswordSubmit = () => {

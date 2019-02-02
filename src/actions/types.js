@@ -61,7 +61,6 @@ export const AUTH_TOKEN = 'authToken';
 export const GET_ORGANIZATION = 'getOrganization';
 export const GETTING_ORGANIZATION = 'gettingOrganization;'
 
-
 export const GET_LATEST_BLOCK = "getLatestBlock";
 export const FETCHING_DATA = 'FETCHING_DATA'
 export const FETCHING_DATA_SUCCESS = 'FETCHING_DATA_SUCCESS'

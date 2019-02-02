@@ -12,7 +12,8 @@ import {
     CLEAR_TRANSACTION_STORE,
     SWITCH_WALLET,
     ADD_WALLET,
-    GET_USERNAME
+    GET_USERNAME,
+    CHECK_LATEST_APK
 } from '../actions/types'
 
 const INITIAL_STATE = {

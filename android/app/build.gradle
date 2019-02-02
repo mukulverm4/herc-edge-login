@@ -167,7 +167,6 @@ configurations.all {
 }
 
 dependencies {
-    compile project(':react-native-camera')
     compile project(':herc-edge-login-ui-rn')
     compile project(':edge-login-ui-rn')
     implementation fileTree(dir: "libs", include: ["*.jar"])
