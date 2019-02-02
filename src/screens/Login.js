@@ -4,11 +4,7 @@ import {
   StyleSheet,
   Text,
   Image,
-<<<<<<< HEAD
   View,
-=======
-  View
->>>>>>> dc2226847e127739aa0715ea3d03e7563e0d4c2f
   PermissionsAndroid
 } from 'react-native';
 import React, { Component } from 'react';
