@@ -303,7 +303,7 @@ class DocumentStorage extends React.Component {
         return (
           <View key={[ind]}>
             <Text style={{ color: "white" }}>{date}</Text>
-            <Text style={{ color: "white" }}>{filename}</Text>
+            <Text style={{ color: "white", width: 200 }}>{filename}</Text>
             <TouchableHighlight
               onPress={() => {
                 this._writeToClipboard(downloadURL);
@@ -419,6 +419,7 @@ class DocumentStorage extends React.Component {
     }
 
     let dataFee = new BigNumber(this._getDocPrice());
+    let preppedDataFee = new BigNumber(dataFee).multipliedBy(1000000000000000000).toFixed(0);
 
     let total =
       parseFloat(this._getDocPrice()) + parseFloat(this._getBurnPrice());
@@ -454,7 +455,7 @@ class DocumentStorage extends React.Component {
         spendTargets: [
           {
             publicAddress: TOKEN_ADDRESS,
-            nativeAmount: "0.000032"
+            nativeAmount: "32000000000000"
           }
         ]
       };
@@ -468,7 +469,7 @@ class DocumentStorage extends React.Component {
         spendTargets: [
           {
             publicAddress: "0x1a2a618f83e89efbd9c9c120ab38c1c2ec9c4e76",
-            nativeAmount: dataFee.toString()
+            nativeAmount: preppedDataFee.toString()
           }
         ]
       };
