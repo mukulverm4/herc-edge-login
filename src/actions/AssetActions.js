@@ -118,8 +118,6 @@ function gotListAssets(assetList) {
 }
 
 export function selectAsset(asset) {
-  console.log(asset, 'asset in Select')
-  console.log(asset, 'wtf')
   return {
     type: SELECT_ASSET,
     selectAsset: asset
@@ -137,12 +135,10 @@ export function getAssetDef(ipfsHash) {
 
 export function gettingAssetDef(ipfsHash) {
   return dispatch => {
-    console.log(ipfsHash, "keeping it simple.")
     let singleHash = ipfsHash;
     axios.get(WEB_SERVER_API_IPFS_GET, { params: singleHash })
       .then(response => {
         let assetDef = response.data[0];
-        console.log(assetDef, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
         return assetDef
       })
       .then((assetDef) => dispatch(gotAssetDef(assetDef)))
@@ -154,7 +150,6 @@ export function gettingAssetDef(ipfsHash) {
 }
 
 export function gotAssetDef(assetDef) {
-  console.log(assetDef, "got the transactions list");
   return {
     type: GOT_ASSET_DEF,
 
@@ -163,7 +158,6 @@ export function gotAssetDef(assetDef) {
 }
 
 export function assetDefError(error) {
-  console.log(assetDef, "got the transactions list");
   return {
     type: ASSET_DEF_ERROR,
     error
@@ -181,7 +175,6 @@ export function addAsset(newAsset) {
 
 export function settingHeader(assetHeader) { //assetForFirebase will be Name, hercID, Logo Optional
   return dispatch => {
-    console.log(assetHeader, "seewhatwe got, name, hercid, maybe logo: jm");
 
     // let account = store.getState().WalletActReducers;
     // let edgeAccount = account.edge_account;
@@ -205,7 +198,6 @@ export function confirmAssetStarted(assetForIPFS) {
   return dispatch => {
     dispatch({ type: CONFIRM_STARTED })
     let asset = assetForIPFS;
-    console.log(asset, "chance in confirmAssetStarted")
     let username = store.getState().WalletActReducers.edge_account
 
     var dataObject = { key: 'asset', data: asset }
@@ -298,7 +290,6 @@ export function confirmAssetComplete() {
 
 export function deleteAsset(key) {
   let delKey = key;
-  console.log(delKey, "deletekey");
   return {
     type: DELETE_ASSET,
     delKey
@@ -320,12 +311,10 @@ export function makePayment(makePaymentObject) {
   return async dispatch => {
     console.log("jm makePaymentObject", makePaymentObject)
     if (DEVELOPERS.includes(store.getState().WalletActReducers.edge_account)){
-      console.log("You are a developer. jm")
 
       store.dispatch(storeTransactionIds({burnTransaction: "madeUpBurnTransactionID", dataFeeTransaction: "madeUpdataFeeTransactionID"}));
       dispatch({type:TRANS_COMPLETE})
     } else {
-      console.log("You are NOT a developer. jm")
 
       const burnSpendInfo = {
         networkFeeOption: "standard",
@@ -404,7 +393,6 @@ export function sendTrans(sendTransObj) {
 
     let data = transObject.data; //documents, images, properties, dTime
     let keys = Object.keys(data) //[ 'dTime', 'documents', 'images', 'properties' ]
-    console.log("Keys in sendTrans Action jm", keys)
     let promiseArray = []
 
     //Checks if documents, metrics, images and EDIT was added
@@ -435,7 +423,7 @@ export function sendTrans(sendTransObj) {
     Promise.all(promiseArray)
       .then(results => {
         // sometimes results are [undefined] when Network Error
-        console.log('Results in send_trans action: jm', results)
+        // console.log('Results in send_trans action: jm', results)
         // results = [{key: 'properties', hash: 'QmU1D1eAeSLC5Dt4wVRR'}, {key: 'images', hash: 'QmU1D1eAeSLC5Dt4wVRR'}]
         // TODO: add error handling for undefined results
         var hashlist = results.map(result => { return result.data })

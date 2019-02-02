@@ -126,7 +126,7 @@ class Login extends Component {
             this.props.getEthAddress(wallet.keys.ethereumAddress)
             this.props.getWallet(wallet)
             wallet.addCustomToken(tokenHerc)
-            wallet.enableTokens(customHercTokens).catch(err => {console.log(err, "chance enable token err")})
+            wallet.enableTokens(customHercTokens).catch(err => {console.log("Enable Token Err: jm", err)})
             return wallet
           })
       } else {
@@ -138,7 +138,7 @@ class Login extends Component {
           this.props.getEthAddress(wallet.keys.ethereumAddress)
           this.props.getWallet(wallet)
           wallet.addCustomToken(tokenHerc)
-          wallet.enableTokens(customHercTokens).catch(err => {console.log(err, "chance enable token err")})
+          wallet.enableTokens(customHercTokens).catch(err => {console.log("Enable Token Err: jm", err)})
           this.setState({walletId: wallet.id})
         })
       }
@@ -188,7 +188,7 @@ const mapDispatchToProps = (dispatch) => ({
     getAssets: (name) => dispatch(getAssets(name)),
     getOrganization: () => dispatch(getOrganization()),
     clearState: () => dispatch(clearState()),
-    
+
     updateBalances: (newBalances) => dispatch(updateBalances(newBalances)),
     getUsername: (edge_account) => dispatch(getUsername(edge_account)),
     authToken: (auth_token) => dispatch(authToken(auth_token)),

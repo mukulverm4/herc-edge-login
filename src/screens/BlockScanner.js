@@ -127,7 +127,7 @@ class BlockScanner extends Component {
       .then(hashes => {
         this._getTransactionData(hashes);
       })
-      .then(res => console.log(res))
+      // .then(res => console.log(res))
       .then(blah => this._getDynamicHercValue());
   };
 
@@ -148,12 +148,9 @@ class BlockScanner extends Component {
 
   _renderTransactions = () => {
     if (this.state.loaded) {
-      console.log(this.state.txnArr);
       return this.state.txnArr.map((curr, ind) => {
-        console.log("making it to line 206");
         let revalue = new BigNumber(curr.value).shiftedBy(-18);
         let fixedRevalue = revalue.toFixed(18);
-        console.log(fixedRevalue);
         let dynamicStyle = {};
         if (ind % 2 == 0) {
           dynamicStyle = {

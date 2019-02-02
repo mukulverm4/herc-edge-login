@@ -81,7 +81,6 @@ class TrackAssetList extends Component {
   }
 
   _showPass = asset => {
-    console.log(asset, "asset before pw enter in SupplyChainTxRx");
 
     this.setState({
       showPass: true,
@@ -100,7 +99,6 @@ class TrackAssetList extends Component {
 
   _selectAsset = asset => {
     const { navigate } = this.props.navigation;
-    console.log("TrackAssetList: going to the trans")
     this.props.selectAsset(asset);
     if (asset.ipfsHash) {
       this.props.getAssetDef(asset.ipfsHash);

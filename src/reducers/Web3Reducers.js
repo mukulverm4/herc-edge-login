@@ -17,7 +17,6 @@ const EthReducers = (ethState = ETH_STATE, action) => {
     switch (action.type) {
 
         case FETCHING_DATA:
-        console.log("fetching Data Reducer");
         return Object.assign({}, ethState, {
             ...ethState,
             isFetching: action.isFetching
@@ -25,7 +24,6 @@ const EthReducers = (ethState = ETH_STATE, action) => {
 
         case FETCHING_DATA_SUCCESS:
 
-            console.log('eth reducer data success');
             let ethData = action.data;
             return Object.assign({}, ethState, {
                 ...ethState,
