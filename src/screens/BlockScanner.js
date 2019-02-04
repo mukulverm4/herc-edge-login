@@ -11,7 +11,7 @@ import {
   TextInput,
   Linking,
   Clipboard,
-  Alert,
+  Alert
 } from "react-native";
 import styles from "../assets/styles";
 import { connect } from "react-redux";
@@ -31,14 +31,16 @@ class BlockScanner extends Component {
       totalSupply: null,
       holdersCount: null,
       txnArr: [],
-      transactionsLoaded: false
+      transactionsLoaded: false,
+      ethAddr: this.props.ethereumAddress
     };
   }
 
   componentDidMount = async () => {
+    this._getMarketCapTotalSupply();
+    this._getHoldersCount();
+    this._getDynamicHercValue();
     await this._justDoIt();
-    await this._getMarketCapTotalSupply();
-    await this._getHoldersCount();
     this.setState({ loaded: true });
   };
 
@@ -74,23 +76,61 @@ class BlockScanner extends Component {
   };
 
   _getTxList_txQuantity = async () => {
+    let ethAddr = this.state.ethAddr;
     return axios
       .get(
-        "https://api.etherscan.io/api?module=account&action=txlist&address=0x6251583e7d997df3604bc73b9779196e94a090ce&startblock=0&endblock=99999999&sort=asc&apikey=Z4A2NZUA58J7CJCEEE87872SCC82BI88W1"
+        "https://api.etherscan.io/api?module=account&action=txlist&address=" +
+          ethAddr +
+          "&startblock=0&endblock=99999999&sort=asc&apikey=Z4A2NZUA58J7CJCEEE87872SCC82BI88W1"
       )
       .then(response => {
-        let responseObject = response.data;
-        let txQuantity = responseObject.result.length;
-        let txList = responseObject.result;
-        let lastTransaction = responseObject.result[txQuantity - 1];
-        let lastBlock = lastTransaction.blockNumber;
-        var i;
-        let lastTenTxnHashs = [];
-        for (i = 1; i < 11; i++) {
-          lastTenTxnHashs.push(responseObject.result[txQuantity - i].hash);
+        if (response.data.result.length === 0) {
+          let lastTenTxnHashs = [];
+          this.setState({
+            lastBlock: 0,
+            lastTenTxnHashs,
+            txQuantity: response.data.result.length
+          });
+          return lastTenTxnHashs;
         }
-        this.setState({ lastBlock, txQuantity, lastTenTxnHashs });
-        return lastTenTxnHashs;
+        if (response.data.result.length > 0) {
+          let responseObject = response.data;
+          let txQuantity = responseObject.result.length;
+          let txList = responseObject.result;
+          let lastTransaction = responseObject.result[txQuantity - 1];
+          let lastBlock = lastTransaction.blockNumber;
+
+          if (txQuantity > 9) {
+            console.log("getting here line 104***");
+            var i;
+            let lastTenTxnHashs = [];
+            for (i = 1; i < 11; i++) {
+              lastTenTxnHashs.push(responseObject.result[txQuantity - i].hash);
+            }
+            this.setState({
+              lastBlock,
+              lastTenTxnHashs,
+              txQuantity: response.data.result.length
+            });
+            return lastTenTxnHashs;
+          } else if (txQuantity < 10) {
+            console.log("getting here line 117***");
+            let reverseResult = responseObject.result.reverse();
+            console.log(reverseResult, "reverse result ***");
+            let lastTenTxnHashs = [];
+            reverseResult.map((curr, ind) => {
+              console.log(curr, ind);
+              lastTenTxnHashs.push(curr.hash);
+            });
+            this.setState({
+              lastBlock,
+              lastTenTxnHashs,
+              txQuantity: response.data.result.length
+            });
+            console.log(lastTenTxnHashs, " txn hashes****");
+            return lastTenTxnHashs;
+          }
+        }
       });
   };
 
@@ -98,37 +138,39 @@ class BlockScanner extends Component {
     return new Promise(resolve => {
       let txnArr = [];
 
-      hashes.map((curHash, ind) => {
-        axios
-          .get(
-            "http://api.ethplorer.io/getTxInfo/" + curHash + "?apiKey=freekey"
-          )
-          .then(res => {
-            let nice = res.data.operations[0];
-            let height = res.data.blockNumber;
-            let value = nice.value;
-            let to = nice.to;
-            let from = nice.from;
+      if (hashes.length > 0) {
+        hashes.map((curHash, ind) => {
+          axios
+            .get(
+              "http://api.ethplorer.io/getTxInfo/" + curHash + "?apiKey=freekey"
+            )
+            .then(res => {
+              console.log(res);
+              if (res.data.operations) {
+                let nice = res.data.operations[0];
+                let height = res.data.blockNumber;
+                let value = nice.value;
+                let to = nice.to;
+                let from = nice.from;
 
-            this.setState(prevState => ({
-              txnArr: [
-                ...prevState.txnArr,
-                { to: to, from: from, value: value }
-              ]
-            }));
-          })
-          .catch(err => console.error(err));
-      });
+                this.setState(prevState => ({
+                  txnArr: [
+                    ...prevState.txnArr,
+                    { to: to, from: from, value: value }
+                  ]
+                }));
+              }
+            })
+            .catch(err => console.error(err));
+        });
+      }
     });
   };
 
   _justDoIt = async () => {
-    await this._getTxList_txQuantity()
-      .then(hashes => {
-        this._getTransactionData(hashes);
-      })
-      .then(res => console.log(res))
-      .then(blah => this._getDynamicHercValue());
+    await this._getTxList_txQuantity().then(hashes => {
+      this._getTransactionData(hashes);
+    });
   };
 
   _getMarketCapTotalSupply = async () => {
@@ -141,19 +183,15 @@ class BlockScanner extends Component {
         this.setState({ marketCap, totalSupply });
       })
       .catch(err => {
-        console.log("erroring out here");
         console.error(err);
       });
   };
 
   _renderTransactions = () => {
-    if (this.state.loaded) {
-      console.log(this.state.txnArr);
+    if (this.state.loaded && this.state.txQuantity > 0) {
       return this.state.txnArr.map((curr, ind) => {
-        console.log("making it to line 206");
         let revalue = new BigNumber(curr.value).shiftedBy(-18);
         let fixedRevalue = revalue.toFixed(18);
-        console.log(fixedRevalue);
         let dynamicStyle = {};
         if (ind % 2 == 0) {
           dynamicStyle = {
@@ -177,7 +215,11 @@ class BlockScanner extends Component {
           </View>
         );
       });
-    } else {
+    } else if (this.state.txQuantity === 0) {
+      return (
+        <Text style={{ textAlign: "center" }}>No Transactions To Display</Text>
+      );
+    } else if (this.state.txQuantity === null) {
       return <Text style={{ textAlign: "center" }}>LOADING</Text>;
     }
   };
@@ -241,7 +283,6 @@ class BlockScanner extends Component {
               </View>
               <View style={headerStyles.header__text__box}>
                 <Text style={headerStyles.headerText}>{params.name}</Text>
-                {/* <Text>BlockScanner</Text> */}
               </View>
             </View>
           </TouchableHighlight>
@@ -255,7 +296,7 @@ class BlockScanner extends Component {
     const contentCopyIcon = (
       <TouchableHighlight
         onPress={() => {
-          this._writeToClipboard('0x6251583e7d997df3604bc73b9779196e94a090ce');
+          this._writeToClipboard("0x6251583e7d997df3604bc73b9779196e94a090ce");
         }}
       >
         <Icon name="content-copy" size={10} color="blue" />
@@ -287,8 +328,6 @@ class BlockScanner extends Component {
                   marginVertical: 10,
                   alignSelf: "center",
                   flexDirection: "row"
-                  // borderColor: "purple",
-                  // borderWidth: 3
                 }}
               >
                 <Image
@@ -296,37 +335,11 @@ class BlockScanner extends Component {
                   style={{ width: 40, height: 40, alignSelf: "center" }}
                 />
                 <View>
-                  <View
-                    style={[
-                      localStyles.contentContainerA_Box_SecRow
-                      // { width: 200 }
-                    ]}
-                  >
+                  <View style={[localStyles.contentContainerA_Box_SecRow]}>
                     <Text style={localStyles.hercValue_Text}>
                       {this.state.hercValue ? "$" + this.state.hercValue : null}
                     </Text>
-                    {/* <Text
-                      style={{
-                        color: "rgb(102,245,7)",
-                        fontSize: 12,
-                        marginLeft: 20,
-                        fontWeight: "normal"
-                      }}
-                    >
-                      3.23 %
-                    </Text> */}
                   </View>
-                  {/* <View style={localStyles.contentContainerA_Box_SecRow}> */}
-                  {/* <Text
-                      style={{
-                        color: "rgb(120,136,229)",
-                        textAlign: "center",
-                        alignSelf: "center"
-                      }}
-                    >
-                      @ 0.03243 BTC/Herc{" "}
-                    </Text> */}
-                  {/* </View> */}
                 </View>
               </View>
               <View style={localStyles.LastBlockTransactionsContainingRow}>
@@ -343,9 +356,9 @@ class BlockScanner extends Component {
                     Transactions
                   </Text>
                   <Text style={localStyles.contentContainerA_MarketCapBox_Text}>
-                    {this.state.txQuantity
+                    {this.state.txQuantity > 0
                       ? this.state.txQuantity.toLocaleString()
-                      : null}
+                      : 0}
                   </Text>
                 </View>
               </View>
@@ -376,89 +389,15 @@ class BlockScanner extends Component {
                 }}
               >
                 <Text style={{ fontSize: 12, marginRight: 5, color: "white" }}>
-                  0x6251583e7d997df3604bc73b9779196e94a090ce
+                  {this.props.ethereumAddress}
                 </Text>
                 {contentCopyIcon}
               </View>
             </View>
-            {/* <View style={localStyles.contentContainerA_HercTransHistBox}> */}
-            {/* <View>
-                <Text
-                  style={{
-                    color: "white",
-                    fontWeight: "bold",
-                    marginTop: 10,
-                    marginLeft: 25
-                  }}
-                >
-                  {" "}
-                  HERC Transaction History{" "}
-                </Text>
-              </View> */}
-            {/* <View
-                style={
-                  localStyles.contentContainerA_HercTransHistBox_dateRangeRow
-                }
-              > */}
-            {/* <TouchableHighlight
-                  style={
-                    localStyles.contentContainerA_HercTransHistBox_dateRangeRow_touchable
-                  }
-                >
-                  <Text
-                    style={
-                      localStyles.contentContainerA_HercTransHistBox_dateRangeRow_text
-                    }
-                  >
-                    Year
-                  </Text>
-                </TouchableHighlight> */}
-            {/* <TouchableHighlight
-                  style={
-                    localStyles.contentContainerA_HercTransHistBox_dateRangeRow_touchable
-                  }
-                >
-                  <Text
-                    style={
-                      localStyles.contentContainerA_HercTransHistBox_dateRangeRow_text
-                    }
-                  >
-                    Month
-                  </Text>
-                </TouchableHighlight> */}
-            {/* <TouchableHighlight
-                  style={
-                    localStyles.contentContainerA_HercTransHistBox_dateRangeRow_touchable
-                  }
-                >
-                  <Text
-                    style={
-                      localStyles.contentContainerA_HercTransHistBox_dateRangeRow_text
-                    }
-                  >
-                    Week
-                  </Text>
-                </TouchableHighlight> */}
-            {/* <TouchableHighlight
-                  style={
-                    localStyles.contentContainerA_HercTransHistBox_dateRangeRow_touchable
-                  }
-                >
-                  <Text
-                    style={
-                      localStyles.contentContainerA_HercTransHistBox_dateRangeRow_text
-                    }
-                  >
-                    Day
-                  </Text>
-                </TouchableHighlight> */}
-            {/* </View> */}
-            {/* </View> */}
           </View>
 
           <View style={[localStyles.contentContainerB, { flex: 1 }]}>
             <View style={localStyles.contentContainerB_TransactionsBox}>
-              {/* <View style={localStyles.contentContainerA_MarketCapBox}> */}
               <View style={localStyles.rowContainingTransactionViewAll}>
                 <TouchableHighlight
                   style={{
@@ -480,65 +419,20 @@ class BlockScanner extends Component {
                   </Text>
                 </TouchableHighlight>
                 <TouchableHighlight
-                  style={{
-                    backgroundColor: "white",
-                    borderColor: "silver",
-                    borderWidth: 1,
-                    borderRadius: 20,
-                    marginRight: 10,
-                    justifyContent: "center"
-                  }}
+                  style={localStyles.viewAll_touchableHighlight}
                   onPress={() => {
                     Linking.openURL(
                       "https://etherscan.io/token/0x6251583e7d997df3604bc73b9779196e94a090ce"
                     );
                   }}
                 >
-                  <Text
-                    style={{
-                      textAlign: "center",
-                      backgroundColor: "white",
-                      marginHorizontal: 24,
-                      marginVertical: 6,
-                      color: "black",
-                      fontSize: 12
-                    }}
-                  >
-                    View all
-                  </Text>
+                  <Text style={localStyles.viewAll_text}>View all</Text>
                 </TouchableHighlight>
               </View>
               <View style={localStyles.fromToValueRowContainer}>
-                <Text
-                  style={{
-                    textAlign: "center",
-                    fontSize: 12,
-                    color: "black",
-                    marginVertical: 10
-                  }}
-                >
-                  From
-                </Text>
-                <Text
-                  style={{
-                    textAlign: "center",
-                    fontSize: 12,
-                    color: "black",
-                    marginVertical: 10
-                  }}
-                >
-                  To
-                </Text>
-                <Text
-                  style={{
-                    textAlign: "center",
-                    fontSize: 12,
-                    color: "black",
-                    marginVertical: 10
-                  }}
-                >
-                  Value
-                </Text>
+                <Text style={localStyles.fromToValue_text}>From</Text>
+                <Text style={localStyles.fromToValue_text}>To</Text>
+                <Text style={localStyles.fromToValue_text}>Value</Text>
               </View>
 
               <View style={{ flexDirection: "column" }}>
@@ -713,6 +607,7 @@ class BlockScanner extends Component {
 }
 
 const mapStateToProps = state => ({
+  ethereumAddress: state.WalletActReducers.ethereumAddress,
   data: state.Web3Reducers.data,
   isFetching: state.Web3Reducers.isFetching,
   isFetched: state.Web3Reducers.isFetched
@@ -834,7 +729,7 @@ const localStyles = StyleSheet.create({
     width: "95%",
     backgroundColor: "white",
     borderRadius: 5,
-    height: 350
+    height: 340
   },
   contentContainerB_FooterBox: {
     flexDirection: "column",
@@ -911,5 +806,27 @@ const localStyles = StyleSheet.create({
     color: "silver",
     marginHorizontal: 5,
     fontWeight: "bold"
+  },
+  fromToValue_text: {
+    textAlign: "center",
+    fontSize: 12,
+    color: "black",
+    marginVertical: 10
+  },
+  viewAll_text: {
+    textAlign: "center",
+    backgroundColor: "white",
+    marginHorizontal: 24,
+    marginVertical: 6,
+    color: "black",
+    fontSize: 12
+  },
+  viewAll_touchableHighlight: {
+    backgroundColor: "white",
+    borderColor: "silver",
+    borderWidth: 1,
+    borderRadius: 20,
+    marginRight: 10,
+    justifyContent: "center"
   }
 });
