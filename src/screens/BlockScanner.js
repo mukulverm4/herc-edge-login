@@ -168,18 +168,9 @@ class BlockScanner extends Component {
   };
 
   _justDoIt = async () => {
-<<<<<<< HEAD
-    await this._getTxList_txQuantity()
-      .then(hashes => {
-        this._getTransactionData(hashes);
-      })
-      // .then(res => console.log(res))
-      .then(blah => this._getDynamicHercValue());
-=======
     await this._getTxList_txQuantity().then(hashes => {
       this._getTransactionData(hashes);
     });
->>>>>>> master
   };
 
   _getMarketCapTotalSupply = async () => {
@@ -197,11 +188,7 @@ class BlockScanner extends Component {
   };
 
   _renderTransactions = () => {
-<<<<<<< HEAD
-    if (this.state.loaded) {
-=======
     if (this.state.loaded && this.state.txQuantity > 0) {
->>>>>>> master
       return this.state.txnArr.map((curr, ind) => {
         let revalue = new BigNumber(curr.value).shiftedBy(-18);
         let fixedRevalue = revalue.toFixed(18);
