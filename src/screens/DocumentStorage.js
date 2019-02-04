@@ -20,7 +20,6 @@ import {
 import firebase from "firebase";
 import Firebase from "../constants/Firebase";
 import hercLogo from "../assets/hercLogoBreak.png";
-import { __await } from "tslib";
 import {
   DocumentPicker,
   DocumentPickerUtil
@@ -126,8 +125,6 @@ class DocumentStorage extends React.Component {
 
   componentDidMount() {
     this._requestExternalStoragePermission();
-    console.log(this.props, "***props***");
-    console.log(store, "store****");
     this._mapUploadHistory();
 
     try {
@@ -172,7 +169,6 @@ class DocumentStorage extends React.Component {
   };
 
   _executeUpload = async () => {
-    console.log("getting to _executeUpload function");
     let f = this.state.document.uri;
     uploadURL = await this._uploadFile(f);
   };
@@ -209,13 +205,11 @@ class DocumentStorage extends React.Component {
         return snapshot.ref.getDownloadURL();
       })
       .then(downloadURL => {
-        console.log("***this is the response from firebase***", downloadURL);
         axios
           .post(WEB_SERVER_API_SHORTEN_URL, {
             longURL: downloadURL
           })
           .then(response => {
-            console.log("this is the response from bitly", response);
             let shortenedURL = response.data.url;
             bindedThis.setState(
               {
@@ -262,8 +256,7 @@ class DocumentStorage extends React.Component {
       this.setState(
         {
           uploadHistory: data.val()
-        },
-        () => console.log(this.state)
+        }
       );
     };
 
@@ -272,7 +265,6 @@ class DocumentStorage extends React.Component {
 
   _updateHistory = () => {
     //after a successful document upload to Firebase Storage, this function updates the history for each user. This information is stored on Firebase DB
-    console.log("making it to update history line 269", this.state.document);
     let filename = this.state.document.name;
     let userID = this.props.account.username;
     let downloadURL = this.state.document.downloadURL;
@@ -291,7 +283,6 @@ class DocumentStorage extends React.Component {
 
   _takePic = () => {
     const { navigate } = this.props.navigation;
-    console.log("FileUp Camera: takingpic");
     navigate("DocumentQRScanner", { setPic: this.setImage });
   };
 
@@ -435,7 +426,7 @@ class DocumentStorage extends React.Component {
     let balance = new BigNumber(this.state.balance);
     let newbalance = balance.minus(convertingPrice);
 
-    console.log("do you have enough?", newbalance.isPositive());
+    // console.log("do you have enough?", newbalance.isPositive());
 
     if (newbalance.isNegative()) {
       Alert.alert(

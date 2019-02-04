@@ -78,7 +78,6 @@ class TrackAssetOptions extends Component {
     }
 
     componentDidMount() {
-        console.log(this.props.asset.hasOwnProperty('transactions'), 'TrackAssetOptions: Does it have transactions??');
         this._checkProps();
         this.props.fetchBlock();
     }

@@ -16,6 +16,8 @@ import axios from 'axios';
 import hercLogoPillar from "../assets/hercLogoPillar.png";
 import { ethereumCurrencyPluginFactory } from 'edge-currency-ethereum';
 import { getUsername, getAccount, authToken, getEthAddress, getWallet, updateBalances } from "../actions/WalletActActions";
+import { getHercId, getAssets, clearState } from "../actions/AssetActions";
+import { getOrganization } from "../actions/WalletActActions";
 import { WEB_SERVER_API_TOKEN, WEB_SERVER_API_LATEST_APK } from "../components/settings";
 import { makeEdgeContext } from 'edge-core-js';
 import { EDGE_API_KEY } from '../components/settings.js'
@@ -90,6 +92,10 @@ class Login extends Component {
           console.log("Is this the latest APK?", results[1].data)
           const { navigate } = this.props.navigation;
 
+          this.props.getHercId();
+          this.props.getAssets(this.props.username);
+          this.props.getOrganization();
+
           if (results[1].data && results[1].data == true) {
             navigate('MenuOptions') // pass in T/F response from /latest/apk
           } else {
@@ -120,7 +126,7 @@ class Login extends Component {
             this.props.getEthAddress(wallet.keys.ethereumAddress)
             this.props.getWallet(wallet)
             wallet.addCustomToken(tokenHerc)
-            wallet.enableTokens(customHercTokens).catch(err => {console.log(err, "chance enable token err")})
+            wallet.enableTokens(customHercTokens).catch(err => {console.log("Enable Token Err: jm", err)})
             return wallet
           })
       } else {
@@ -132,7 +138,7 @@ class Login extends Component {
           this.props.getEthAddress(wallet.keys.ethereumAddress)
           this.props.getWallet(wallet)
           wallet.addCustomToken(tokenHerc)
-          wallet.enableTokens(customHercTokens).catch(err => {console.log(err, "chance enable token err")})
+          wallet.enableTokens(customHercTokens).catch(err => {console.log("Enable Token Err: jm", err)})
           this.setState({walletId: wallet.id})
         })
       }
@@ -178,17 +184,16 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  updateBalances: (newBalances) =>
-    dispatch(updateBalances(newBalances)),
-    getUsername: (edge_account) =>
-        dispatch(getUsername(edge_account)),
-    authToken: (auth_token) =>
-              dispatch(authToken(auth_token)),
-    getEthAddress: (ethereumAddress) =>
-      dispatch(getEthAddress(ethereumAddress)),
-    getWallet: (wallet) =>
-      dispatch(getWallet(wallet)),
-    getAccount: (account) =>
-      dispatch(getAccount(account)),
+    getHercId: () => dispatch(getHercId()),
+    getAssets: (name) => dispatch(getAssets(name)),
+    getOrganization: () => dispatch(getOrganization()),
+    clearState: () => dispatch(clearState()),
+
+    updateBalances: (newBalances) => dispatch(updateBalances(newBalances)),
+    getUsername: (edge_account) => dispatch(getUsername(edge_account)),
+    authToken: (auth_token) => dispatch(authToken(auth_token)),
+    getEthAddress: (ethereumAddress) => dispatch(getEthAddress(ethereumAddress)),
+    getWallet: (wallet) => dispatch(getWallet(wallet)),
+    getAccount: (account) => dispatch(getAccount(account)),
 })
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

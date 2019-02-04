@@ -20,6 +20,7 @@ import store from "../store";
 import firebase from "../constants/Firebase";
 const rootRef = firebase.database().ref();
 
+
 export function authToken(token) {
     return {
         type: AUTH_TOKEN,

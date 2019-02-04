@@ -40,15 +40,14 @@ class MenuOptions extends Component {
     })
 
 
-    componentDidMount() {
-      this._requestFineLocationPermission();
-        // this.props.clearState();
-        this.props.getHercId();
-        this.props.getAssets(this.props.username);
-        this.props.getOrganization();
+    componentWillMount() {
+        this._requestFineLocationPermission();
+        // should move the next 3 actions into Login.js
+        // this.props.getHercId();
+        // this.props.getAssets(this.props.username);
+        // this.props.getOrganization();
 
         let alertLatestVersion = this.props.navigation.getParam('alertLatestVersion', 'false')
-        console.log("alertLatestVersion jm:", alertLatestVersion)
 
         // if alertLatestVersion is true, trigger alert.
         if (alertLatestVersion &&  alertLatestVersion == true) {

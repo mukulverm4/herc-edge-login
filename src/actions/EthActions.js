@@ -14,7 +14,6 @@ import { WEB_SERVER_API_GET_LATEST_BLOCK } from '../components/settings'
 //////////   Trying out some Async actions for error tracking
 
 export function fetchingData(status) {
-    console.log('dataFetching status: ', status)
     return {
         type: FETCHING_DATA,
         isFetching: status
@@ -23,10 +22,7 @@ export function fetchingData(status) {
 
 
 export function fetchingDataSuccess(data) {
-
-    console.log(data, 'success data');
     return {
-
         type: FETCHING_DATA_SUCCESS,
         isFetched: true,
         isFetching: false,
@@ -38,7 +34,6 @@ export function fetchingDataSuccess(data) {
 
 
 export function fetchingDataFailure(error) {
-    console.log(error)
     return {
         type: FETCHING_DATA_FAILURE,
         fetchError: true,
@@ -48,13 +43,10 @@ export function fetchingDataFailure(error) {
 
 export function fetchBlock() {
 
-    console.log('ethfetchBlock')
-
     return dispatch => {
         dispatch(fetchingData(true))
         axios.get(WEB_SERVER_API_GET_LATEST_BLOCK)
             .then(response => {
-                console.log(response.data, 'data from the block request');
                 let block = response.data;
                 dispatch(fetchingDataSuccess(block))
             })
@@ -91,11 +83,9 @@ export function fetchBlock() {
 
 export function fetchContract(address) {
     let add = address;
-    console.log('ethfetchContract')
     return async dispatch => {
         function onSuccess(success) {
             success.json().then((result) => {
-                console.log(result)
                 dispatch(gotDataSuccess(result))
             })
 
