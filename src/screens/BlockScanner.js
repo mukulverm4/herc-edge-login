@@ -101,6 +101,7 @@ class BlockScanner extends Component {
           let lastBlock = lastTransaction.blockNumber;
 
           if (txQuantity > 9) {
+            console.log("getting here line 104***");
             var i;
             let lastTenTxnHashs = [];
             for (i = 1; i < 11; i++) {
@@ -112,16 +113,21 @@ class BlockScanner extends Component {
               txQuantity: response.data.result.length
             });
             return lastTenTxnHashs;
-          } else if (txQuantity > 1) {
+          } else if (txQuantity < 10) {
+            console.log("getting here line 117***");
             let reverseResult = responseObject.result.reverse();
-            var i;
+            console.log(reverseResult, "reverse result ***");
             let lastTenTxnHashs = [];
-            reverseResult.map(curr, ind => lastTenTxnHashs.push(curr.hash));
+            reverseResult.map((curr, ind) => {
+              console.log(curr, ind);
+              lastTenTxnHashs.push(curr.hash);
+            });
             this.setState({
               lastBlock,
               lastTenTxnHashs,
               txQuantity: response.data.result.length
             });
+            console.log(lastTenTxnHashs, " txn hashes****");
             return lastTenTxnHashs;
           }
         }
@@ -132,25 +138,28 @@ class BlockScanner extends Component {
     return new Promise(resolve => {
       let txnArr = [];
 
-      if (hashes.length > 1) {
+      if (hashes.length > 0) {
         hashes.map((curHash, ind) => {
           axios
             .get(
               "http://api.ethplorer.io/getTxInfo/" + curHash + "?apiKey=freekey"
             )
             .then(res => {
-              let nice = res.data.operations[0];
-              let height = res.data.blockNumber;
-              let value = nice.value;
-              let to = nice.to;
-              let from = nice.from;
+              console.log(res);
+              if (res.data.operations) {
+                let nice = res.data.operations[0];
+                let height = res.data.blockNumber;
+                let value = nice.value;
+                let to = nice.to;
+                let from = nice.from;
 
-              this.setState(prevState => ({
-                txnArr: [
-                  ...prevState.txnArr,
-                  { to: to, from: from, value: value }
-                ]
-              }));
+                this.setState(prevState => ({
+                  txnArr: [
+                    ...prevState.txnArr,
+                    { to: to, from: from, value: value }
+                  ]
+                }));
+              }
             })
             .catch(err => console.error(err));
         });
@@ -210,9 +219,8 @@ class BlockScanner extends Component {
       return (
         <Text style={{ textAlign: "center" }}>No Transactions To Display</Text>
       );
-    }
-    else if (this.state.txQuantity === null ){
-      return <Text style={{ textAlign: "center" }}>LOADING</Text>
+    } else if (this.state.txQuantity === null) {
+      return <Text style={{ textAlign: "center" }}>LOADING</Text>;
     }
   };
 
@@ -418,11 +426,7 @@ class BlockScanner extends Component {
                     );
                   }}
                 >
-                  <Text
-                    style={localStyles.viewAll_text}
-                  >
-                    View all
-                  </Text>
+                  <Text style={localStyles.viewAll_text}>View all</Text>
                 </TouchableHighlight>
               </View>
               <View style={localStyles.fromToValueRowContainer}>
@@ -725,7 +729,7 @@ const localStyles = StyleSheet.create({
     width: "95%",
     backgroundColor: "white",
     borderRadius: 5,
-    height: 350
+    height: 340
   },
   contentContainerB_FooterBox: {
     flexDirection: "column",
