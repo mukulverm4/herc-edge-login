@@ -70,15 +70,10 @@ class Wallet extends React.Component {
   _updateWallet = () => {
     if (!this.props.watchBalance || !this.props.watchBalance.ETH) {
       let displayWallet = this.state.displayWallet;
-      console.log(
-        "Display Wallet: ",
-        this.props.wallet.balances[displayWallet]
-      );
       let tempBalance = new BigNumber(this.props.wallet.balances[displayWallet])
         .times(1e-18)
         .toFixed(18);
 
-        console.log(tempBalance, "***temp balance***")
       return tempBalance;
       // return "0.000000"; //don't assume it is 0
     } else {
@@ -180,7 +175,6 @@ class Wallet extends React.Component {
   };
 
   _generateETHTextInput = () => {
-    console.log(this.state.displayWallet, "in the generate text input");
     if (this.state.displayWallet === "ETH") {
       return (
         <View style={localStyles.textInputContainer}>
@@ -219,7 +213,6 @@ class Wallet extends React.Component {
     let testPlaceholder = "this is test" + displayWallet;
     // let currencyValue = this._updateWallet() === NaN ? '0.000000' : this._updateWallet();
     let currencyValue = this._updateWallet(); // don't assume NaN means 0. It will freak out ppl with a lot of tokens
-    console.log(currencyValue, "currencyValue in wallet.js");
     return (
       <ScrollView>
         <View style={styles.container}>

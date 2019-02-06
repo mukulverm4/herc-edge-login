@@ -39,14 +39,9 @@ export class Settings extends Component {
     }
   }
 
-  componentDidMount() {
-    console.log('****SETTINGS.jS *****', VERSION)
-  }
-
   onLogOut = () => {
     firebase.auth().signOut().then(function () {
       // Sign-out successful.
-      console.log("Firebase Sign-out successful.")
     }).catch(err => {
       console.log(err)
       // An error happened.

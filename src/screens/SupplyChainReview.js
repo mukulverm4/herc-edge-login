@@ -90,7 +90,6 @@ class SupplyChainReview extends Component {
     super(props);
   }
   componentDidMount() {
-    console.log("jm: in SupplyChainReview")
     StatusBar.setBackgroundColor("#ffffff");
     StatusBar.setBarStyle("dark-content", true);
   }
@@ -101,7 +100,6 @@ class SupplyChainReview extends Component {
     let logo = this.props.logo;
     let asset = this.props.transHeader;
     let hercId = this.props.hercId;
-
     return (
       <View style={styles.container}>
         <View style={styles.containerCenter}>

@@ -3,7 +3,9 @@ import {
   Platform,
   StyleSheet,
   Text,
-  View
+  Image,
+  View,
+  PermissionsAndroid
 } from 'react-native';
 import React, { Component } from 'react';
 // import { LoginScreen } from 'edge-login-ui-rn';
@@ -11,13 +13,15 @@ import { LoginScreen } from 'herc-edge-login-ui-rn';
 import { YellowBox } from 'react-native';
 import { connect } from "react-redux";
 import axios from 'axios';
+import hercLogoPillar from "../assets/hercLogoPillar.png";
 import { ethereumCurrencyPluginFactory } from 'edge-currency-ethereum';
 import { getUsername, getAccount, authToken, getEthAddress, getWallet, updateBalances } from "../actions/WalletActActions";
+import { getHercId, getAssets, clearState } from "../actions/AssetActions";
+import { getOrganization } from "../actions/WalletActActions";
 import { WEB_SERVER_API_TOKEN, WEB_SERVER_API_LATEST_APK } from "../components/settings";
 import { makeEdgeContext } from 'edge-core-js';
 import { EDGE_API_KEY } from '../components/settings.js'
 import firebase from "../constants/Firebase";
-
 
 class Login extends Component {
   static navigationOptions = {
@@ -44,6 +48,8 @@ class Login extends Component {
       this.setState({ context })
     })
   }
+
+
 
   onLogin = async (error = null, account) => {
     let tokenHerc = {
@@ -86,6 +92,10 @@ class Login extends Component {
           console.log("Is this the latest APK?", results[1].data)
           const { navigate } = this.props.navigation;
 
+          this.props.getHercId();
+          this.props.getAssets(this.props.username);
+          this.props.getOrganization();
+
           if (results[1].data && results[1].data == true) {
             navigate('SideMenuNavigator') // pass in T/F response from /latest/apk
           } else {
@@ -115,7 +125,7 @@ class Login extends Component {
             this.props.getEthAddress(wallet.keys.ethereumAddress)
             this.props.getWallet(wallet)
             wallet.addCustomToken(tokenHerc)
-            wallet.enableTokens(customHercTokens).catch(err => { console.log(err, "chance enable token err") })
+            wallet.enableTokens(customHercTokens).catch(err => {console.log("Enable Token Err: jm", err)})
             return wallet
           })
       } else {
@@ -127,8 +137,8 @@ class Login extends Component {
           this.props.getEthAddress(wallet.keys.ethereumAddress)
           this.props.getWallet(wallet)
           wallet.addCustomToken(tokenHerc)
-          wallet.enableTokens(customHercTokens).catch(err => { console.log(err, "chance enable token err") })
-          this.setState({ walletId: wallet.id })
+          wallet.enableTokens(customHercTokens).catch(err => {console.log("Enable Token Err: jm", err)})
+          this.setState({walletId: wallet.id})
         })
       }
     }
@@ -144,7 +154,7 @@ class Login extends Component {
         />
       );
     }
-    return <Text style={styles.welcome}>Loading</Text>;
+    return   <Image source={hercLogoPillar} />;
   };
 
   render() {
@@ -173,6 +183,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
+<<<<<<< HEAD
   updateBalances: (newBalances) =>
     dispatch(updateBalances(newBalances)),
   getUsername: (edge_account) =>
@@ -185,5 +196,18 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(getWallet(wallet)),
   getAccount: (account) =>
     dispatch(getAccount(account)),
+=======
+    getHercId: () => dispatch(getHercId()),
+    getAssets: (name) => dispatch(getAssets(name)),
+    getOrganization: () => dispatch(getOrganization()),
+    clearState: () => dispatch(clearState()),
+
+    updateBalances: (newBalances) => dispatch(updateBalances(newBalances)),
+    getUsername: (edge_account) => dispatch(getUsername(edge_account)),
+    authToken: (auth_token) => dispatch(authToken(auth_token)),
+    getEthAddress: (ethereumAddress) => dispatch(getEthAddress(ethereumAddress)),
+    getWallet: (wallet) => dispatch(getWallet(wallet)),
+    getAccount: (account) => dispatch(getAccount(account)),
+>>>>>>> fc1d08ea6bd6f0fe6c2217dfae01be80b0842ef8
 })
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

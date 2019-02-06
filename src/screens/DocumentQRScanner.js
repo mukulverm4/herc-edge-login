@@ -12,10 +12,6 @@ export default class LinksScreen extends React.Component {
             result: ""
         };
     }
-    componentDidMount() {
-        console.log("in document QR Scanner");
-        // this._requestCameraPermission();
-    }
     static navigationOptions = {
         title: null,
     };
