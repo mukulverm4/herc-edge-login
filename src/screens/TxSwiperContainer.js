@@ -76,7 +76,7 @@ class TxSwiperContainer extends Component {
         }
     }
     componentDidMount() {
-        console.log(this.state.transactions, 'TxSwiperContainer: state transactions')
+        // console.log(this.state.transactions, 'TxSwiperContainer: state transactions')
 
     }
     // _renderCards() {

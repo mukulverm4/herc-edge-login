@@ -18,7 +18,7 @@ class NewAssetConfirm extends Component {
             modalVisible: false,
             loading: false,
             confirmComplete: false,
-            balance: '',
+            balance: 'madeupBalance',
             transactionId: null
         }
     }
@@ -40,7 +40,7 @@ class NewAssetConfirm extends Component {
         }
     }
 
-    componentDidMount() {
+    componentWillMount() {
         try {
           let balance = new BigNumber(this.props.watchBalance["HERC"])
           this.setState({ balance: balance.times(1e-18).toFixed(6) })
@@ -153,6 +153,8 @@ class NewAssetConfirm extends Component {
         console.log("You are a developer. jm")
         this._sendNewAsset()
       } else {
+        console.log("jm checkbalance()", this.state.balance)
+        debugger;
         // this is a non-developer
         console.log("You are NOT a developer. jm")
         let price = new BigNumber(1000)
@@ -187,10 +189,9 @@ class NewAssetConfirm extends Component {
 
 
     _onPressSubmit() {
-
         Alert.alert(
           'Minimum Balance Requirement: 1000 HERC',
-          'Current Balance: \n'+ this.state.balance+ ' HERC \nDo you wish to check if your balance meets the minimum requirement?' ,
+          'Current Balance: \n'+ this.state.balance + ' HERC \nDo you wish to check if your balance meets the minimum requirement?' ,
           [
             {text: 'No', onPress: () => console.log('No Pressed'), style: 'cancel'},
             {text: 'Yes', onPress: () => {this._checkBalance()} },
@@ -215,7 +216,6 @@ class NewAssetConfirm extends Component {
         let Name = newAsset.Name;
         let password = this.props.newAsset.Password
 
-        console.log(newAsset, "newAsset, look at Logo")
         if (newAsset.Logo) {
             Logo = (<Image style={styles.assetHeaderImage} source={{ uri: newAsset.Logo.uri }} />);
         } else {

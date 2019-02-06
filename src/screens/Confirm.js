@@ -92,21 +92,12 @@ class Confirm extends Component {
   }
   state = {};
 
-
-  componentDidMount() {
-    console.log(this.props.newMetrics, 'thisnewtransinfo')
-
-
-  }
-
   render() {
     // let price = this.state.fctPrice;
     const { navigate } = this.props.navigation;
-    console.log(this.props.newMetrics, "txnewMetrics")
 
     let locationImage = this.props.location === 'originator' ? originator : recipient;
     let logo = this.props.logo;
-    // console.log(this.props.Assets);
 
     let list = this.props.newMetrics
       ?
@@ -130,17 +121,7 @@ class Confirm extends Component {
           <Image style={localStyles.assetLocationLabel} source={locationImage} />
           <ScrollView style={{ alignSelf: "center", width: "100%", paddingRight: 10 }}>
             {list}
-            <TouchableHighlight style={{
-              backgroundColor: 'white',
-              fontSize: 18,
-              height: 40,
-              width: 80,
-              borderColor: "black",
-              borderWidth: 2,
-              margin: 5,
-              padding: 5,
-              justifyContent: "center"
-            }} onPress={() => navigate('SupplyChainReview', { logo: this.props.logo, name: this.props.name })}>
+            <TouchableHighlight style={localStyles.button} onPress={() => navigate('SupplyChainReview', { logo: this.props.logo, name: this.props.name })}>
               <Text>Submit</Text>
             </TouchableHighlight>
             {/* <View style={styles.assetFee}>
@@ -229,15 +210,20 @@ const localStyles = StyleSheet.create({
     margin: 2,
     textAlign: "right"
   },
-
-
-    text: {
-        color: "white",
-        alignSelf: "center",
-        fontSize: 16,
-        fontWeight: "normal",
-        margin: 5,
-        fontFamily: "dinPro"
-    },
-
+  button: {
+    width: 80,
+    borderColor: "black",
+    borderWidth: 2,
+    padding: 5,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  text: {
+      color: "white",
+      alignSelf: "center",
+      fontSize: 16,
+      fontWeight: "normal",
+      margin: 5,
+      fontFamily: "dinPro"
+  }
 })

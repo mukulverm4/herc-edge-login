@@ -8,12 +8,17 @@ import {
     UPDATE_BALANCES,
     DEBIT_TRANS,
     DELETE_WALLET,
+    STORE_TRANSACTION_IDS,
+    CLEAR_TRANSACTION_STORE,
     SWITCH_WALLET,
     ADD_WALLET,
-    GET_USERNAME
+    GET_USERNAME,
+    CHECK_LATEST_APK
 } from '../actions/types'
 
-const INITIAL_STATE = {}
+const INITIAL_STATE = {
+  transactionIdStore: null
+}
 
 
 export default function WalletReducer(state = INITIAL_STATE, action) {
@@ -109,6 +114,23 @@ export default function WalletReducer(state = INITIAL_STATE, action) {
                 ...state,
                 wallets: trimmedWallet
             }
+
+
+        case CLEAR_TRANSACTION_STORE:
+          console.log("jm clearing transactionstore 2/2")
+          return {
+              ...state,
+              transactionIdStore: null
+          }
+
+
+        case STORE_TRANSACTION_IDS:
+          console.log("jm transactionIDs in reducer", action.transactionIds)
+          return {
+              ...state,
+              transactionIdStore: action.transactionIds
+          }
+
 
         case SWITCH_WALLET:
             console.log('getting balance', state);

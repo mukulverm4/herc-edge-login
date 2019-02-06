@@ -9,7 +9,7 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 // composeWithDevTools()
 // const store = createStore(reducer, composeWithDevTools(
 //   applyMiddleware(...middleware),
-// other store enhancers if any 
+// other store enhancers if any
 // ));
 const store = createStore(
   reducers,
@@ -17,9 +17,6 @@ const store = createStore(
   composeWithDevTools(applyMiddleware(thunkMiddleware)),
   // window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
 
-
 );
 
 export default store;
-
-

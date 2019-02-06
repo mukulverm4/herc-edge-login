@@ -1,4 +1,3 @@
-// const { navigate } = this.props.navigation;
 import React, { Component } from "react";
 import {
   StyleSheet,
@@ -94,8 +93,6 @@ class SupplyChainAssetList extends Component {
   componentDidMount() {
     StatusBar.setBackgroundColor("white");
     StatusBar.setBarStyle("dark-content", true);
-    console.log(this.props.assets, "Supply Chain: Asset Headers From Firebase")
-
   }
 
   _renderAssets = () => {
@@ -116,8 +113,6 @@ class SupplyChainAssetList extends Component {
   }
 
   _showPass = asset => {
-    console.log(asset, "asset before pw enter in SupplyChainTxRx: jm");
-
     this.setState({
       showPass: true,
       asset
@@ -130,7 +125,6 @@ class SupplyChainAssetList extends Component {
   }
 
   _onPasswordSubmit = () => {
-    console.log("jm")
     if (this.state.password === this.state.asset.Password) {
       let asset = this.state.asset
       this._stagingAsset(asset)
@@ -176,6 +170,7 @@ class SupplyChainAssetList extends Component {
           transparent={false}
           animationType={'none'}
           visible={this.state.showPass}
+          onShow={() => { this.textInput.focus(); }}
           onRequestClose={() => { console.log("modal closed") }}
         >
           <View style={styles.container}>
@@ -188,6 +183,7 @@ class SupplyChainAssetList extends Component {
 
                 <View style={localStyles.passwordTextInputView}>
                   <TextInput
+                    ref={(input) => { this.textInput = input; }}
                     autoCorrect={false}
                     spellCheck={false}
                     underlineColorAndroid="transparent"

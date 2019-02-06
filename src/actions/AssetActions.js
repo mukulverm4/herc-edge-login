@@ -32,11 +32,13 @@ import {
   CLEAR_STATE,
 } from "./types";
 
+import { storeTransactionIds } from './WalletActActions'
 import axios from 'axios';
 import store from "../store";
 import firebase from "../constants/Firebase";
 const rootRef = firebase.database().ref();
 const assetRef = rootRef.child("assets");
+import { TOKEN_ADDRESS, DEVELOPERS } from "../components/settings";
 
 import {
   WEB_SERVER_API_IPFS_GET,
@@ -85,12 +87,13 @@ export function incHercId(hercid) {
   };
 }
 
+
+
 export function getAssets(userName) {
   return dispatch => {
     let assetLabels = [];
     assetRef.once("value")
       .then(snapshot => {
-        console.log(snapshot.val(), " getAssets Action: what's in the database?")
         snapshot.forEach(asset => {
           assetLabels.push(
             asset.toJSON()
@@ -106,7 +109,6 @@ export function getAssets(userName) {
 
 
 function gotListAssets(assetList) {
-  console.log("gotListAssetsAction", assetList)
   return (
     {
       type: GOT_LIST_ASSETS,
@@ -116,8 +118,6 @@ function gotListAssets(assetList) {
 }
 
 export function selectAsset(asset) {
-  console.log(asset, 'asset in Select')
-  console.log(asset, 'wtf')
   return {
     type: SELECT_ASSET,
     selectAsset: asset
@@ -135,12 +135,10 @@ export function getAssetDef(ipfsHash) {
 
 export function gettingAssetDef(ipfsHash) {
   return dispatch => {
-    console.log(ipfsHash, "keeping it simple.")
     let singleHash = ipfsHash;
     axios.get(WEB_SERVER_API_IPFS_GET, { params: singleHash })
       .then(response => {
         let assetDef = response.data[0];
-        console.log(assetDef, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
         return assetDef
       })
       .then((assetDef) => dispatch(gotAssetDef(assetDef)))
@@ -152,7 +150,6 @@ export function gettingAssetDef(ipfsHash) {
 }
 
 export function gotAssetDef(assetDef) {
-  console.log(assetDef, "got the transactions list");
   return {
     type: GOT_ASSET_DEF,
 
@@ -161,7 +158,6 @@ export function gotAssetDef(assetDef) {
 }
 
 export function assetDefError(error) {
-  console.log(assetDef, "got the transactions list");
   return {
     type: ASSET_DEF_ERROR,
     error
@@ -179,7 +175,6 @@ export function addAsset(newAsset) {
 
 export function settingHeader(assetHeader) { //assetForFirebase will be Name, hercID, Logo Optional
   return dispatch => {
-    console.log(assetHeader, "seewhatwe got, name, hercid, maybe logo: jm");
 
     // let account = store.getState().WalletActReducers;
     // let edgeAccount = account.edge_account;
@@ -203,7 +198,6 @@ export function confirmAssetStarted(assetForIPFS) {
   return dispatch => {
     dispatch({ type: CONFIRM_STARTED })
     let asset = assetForIPFS;
-    console.log(asset, "chance in confirmAssetStarted")
     let username = store.getState().WalletActReducers.edge_account
 
     var dataObject = { key: 'asset', data: asset }
@@ -296,12 +290,12 @@ export function confirmAssetComplete() {
 
 export function deleteAsset(key) {
   let delKey = key;
-  console.log(delKey, "deletekey");
   return {
     type: DELETE_ASSET,
     delKey
   };
 }
+
 
 export function startTrans(trans) {
   let newtrans = trans;
@@ -312,8 +306,76 @@ export function startTrans(trans) {
   };
 }
 
-export function sendTrans(transPrice) {
-  // TODO: charge payment. trans = 0.000125
+
+export function makePayment(makePaymentObject) {
+  return async dispatch => {
+    console.log("jm makePaymentObject", makePaymentObject)
+    if (DEVELOPERS.includes(store.getState().WalletActReducers.edge_account)){
+
+      store.dispatch(storeTransactionIds({burnTransaction: "madeUpBurnTransactionID", dataFeeTransaction: "madeUpdataFeeTransactionID"}));
+      dispatch({type:TRANS_COMPLETE})
+    } else {
+
+      const burnSpendInfo = {
+        networkFeeOption: "standard",
+        currencyCode: "HERC",
+        metadata: {
+          name: "Transfer From Herc Wallet",
+          category: "Transfer:Wallet:Network Fee"
+        },
+        spendTargets: [
+          {
+            publicAddress: TOKEN_ADDRESS,
+            nativeAmount: makePaymentObject.networkFee
+          }
+        ]
+      };
+      const dataFeeSpendInfo = {
+        networkFeeOption: "standard",
+        currencyCode: "HERC",
+        metadata: {
+          name: "Transfer From Herc Wallet",
+          category: "Transfer:Wallet:Data Fee"
+        },
+        spendTargets: [
+          {
+            publicAddress: "0x1a2a618f83e89efbd9c9c120ab38c1c2ec9c4e76",
+            nativeAmount: makePaymentObject.dataFee
+          }
+        ]
+      };
+      // catch error for "ErrorInsufficientFunds"
+      // catch error for "ErrorInsufficientFundsMoreEth"
+      let wallet = store.getState().WalletActReducers.wallet;
+      try {
+        let burnTransaction = await wallet.makeSpend(burnSpendInfo);
+        await wallet.signTx(burnTransaction);
+        await wallet.broadcastTx(burnTransaction);
+        await wallet.saveTx(burnTransaction);
+        console.log("jm Sent burn transaction with ID = " + burnTransaction.txid);
+
+        let dataFeeTransaction = await wallet.makeSpend(dataFeeSpendInfo);
+        await wallet.signTx(dataFeeTransaction);
+        await wallet.broadcastTx(dataFeeTransaction);
+        await wallet.saveTx(dataFeeTransaction);
+        console.log(
+          "jm Sent dataFee transaction with ID = " + dataFeeTransaction.txid
+        );
+
+        if (burnTransaction.txid && dataFeeTransaction.txid) {
+          store.dispatch(storeTransactionIds({burnTransaction: burnTransaction.txid, dataFeeTransaction: dataFeeTransaction.txid}));
+          dispatch({type:TRANS_COMPLETE})
+
+        }
+      } catch (e) {
+        console.log("jm error", e)
+      }
+    }
+  }
+}
+
+
+export function sendTrans(sendTransObj) {
   return dispatch => {
     dispatch({ type: SEND_TRANS })
 
@@ -324,12 +386,13 @@ export function sendTrans(transPrice) {
     // let transObject = state.AssetReducers.selectedAsset.trans;
     let header = Object.assign({},transObject.header, {
       ...transObject.header,
-      price: transPrice
+      price: sendTransObj.totalBN
     }); //tXlocation, hercId, price, name
+    delete sendTransObj.totalBN
+
 
     let data = transObject.data; //documents, images, properties, dTime
     let keys = Object.keys(data) //[ 'dTime', 'documents', 'images', 'properties' ]
-    console.log("Keys in sendTrans Action jm", keys)
     let promiseArray = []
 
     //Checks if documents, metrics, images and EDIT was added
@@ -360,7 +423,7 @@ export function sendTrans(transPrice) {
     Promise.all(promiseArray)
       .then(results => {
         // sometimes results are [undefined] when Network Error
-        console.log('Results in send_trans action: jm', results)
+        // console.log('Results in send_trans action: jm', results)
         // results = [{key: 'properties', hash: 'QmU1D1eAeSLC5Dt4wVRR'}, {key: 'images', hash: 'QmU1D1eAeSLC5Dt4wVRR'}]
         // TODO: add error handling for undefined results
         var hashlist = results.map(result => { return result.data })
@@ -373,21 +436,14 @@ export function sendTrans(transPrice) {
             var firebaseHeader = Object.assign({}, header, { factomEntry: response.data })
             rootRef.child('assets').child(firebaseHeader.name).child('transactions').child(dTime).set({ data: dataObject, header: firebaseHeader })
             console.log("2/2 ....finished writing to firebase. jm")
-            dispatch({type:TRANS_COMPLETE})
+            console.log("jm mutated sendTransObj", sendTransObj)
+            dispatch(makePayment(sendTransObj))
           })
           .catch(err => { console.log(err) })
       })
       .catch(err => { console.log(err) })
     }
-
-  //   return {
-  //     type: TRANS_COMPLETE,
-  //     data: trans
-  //   };
-  // }
-
 }
-
 
   export function addMetrics(newMetrics) {
     return {
